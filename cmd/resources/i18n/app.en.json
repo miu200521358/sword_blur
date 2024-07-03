@@ -1,0 +1,38 @@
+[
+    {
+        "id": "ブレ生成対象モデル(Pmx)",
+        "translation": "Blurring generation target model (Pmx)"
+    },
+    {
+        "id": "ブレ生成対象モデルPmxファイルを選択してください",
+        "translation": "Please select the blurring generation target model Pmx file"
+    },
+    {
+        "id": "ブレ生成対象モデルの使い方",
+        "translation": "- You can set the Pmx model for which you want to add blur settings.\n- The string in the model name field can be selected."
+    },
+    {
+        "id": "確認用モーション(Vmd/Vpd)",
+        "translation": "Motion for confirmation (Vmd/Vpd)"
+    },
+    {
+        "id": "確認用モーション(Vmd/Vpd)ファイルを選択してください",
+        "translation": "Please select the motion for confirmation (Vmd/Vpd) file"
+    },
+    {
+        "id": "確認用モーションの使い方",
+        "translation": "- You can optionally set a motion Vmd or Vpd.\n- The string in the model name field within the motion can be selected."
+    },
+    {
+        "id": "出力モデル(Pmx)",
+        "translation": "Output model (Pmx)"
+    },
+    {
+        "id": "出力モデル(Pmx)ファイルパスを指定してください",
+        "translation": "Please specify the output model (Pmx) file path"
+    },
+    {
+        "id": "出力モデルの使い方",
+        "translation": "- You can set the file path for the output model with blur settings.\n- The output destination is set automatically, but you can change it to any path you like."
+    }
+]
