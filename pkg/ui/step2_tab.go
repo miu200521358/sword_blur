@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/miu200521358/mlib_go/pkg/mutils"
@@ -47,6 +48,7 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 		return nil, err
 	}
 
+	// 元モデル設定時
 	step1Page.Items.OriginalPmxPicker.OnPathChanged = func(path string) {
 		func(path string) {
 			isExist, err := mutils.ExistsFile(path)
@@ -55,9 +57,7 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 				return
 			}
 
-			// とりあえず次を有効に
 			step1Page.Items.OutputPmxPicker.SetEnabled(true)
-			stp.SetEnabled(true)
 
 			// 出力パス設定
 			dir, file := filepath.Split(path)
@@ -81,6 +81,11 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 
 				step1Page.Items.MotionPlayer.SetEnabled(true)
 				step1Page.Items.MotionPlayer.SetValue(0)
+				stp.SetEnabled(true)
+				stp.Items.MaterialListBox.SetMaterials(model.Materials, func(indexes []int) {
+					mlog.I(fmt.Sprintf("材質Indexes: %v", indexes))
+				})
+				mlog.IL(mi18n.T("Step1モデル設定完了"))
 
 				go func() {
 					mWindow.GetMainGlWindow().FrameChannel <- 0
@@ -92,10 +97,12 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 					mWindow.GetMainGlWindow().RemoveModelSetIndexChannel <- 0
 				}()
 				step1Page.Items.MotionPlayer.SetEnabled(false)
+				stp.SetEnabled(false)
 			}
 		}(path)
 	}
 
+	// モーション設定時
 	step1Page.Items.OriginalVmdPicker.OnPathChanged = func(path string) {
 		if step1Page.Items.OriginalVmdPicker.Exists() {
 			motionData, err := step1Page.Items.OriginalVmdPicker.GetData()
@@ -111,9 +118,6 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 			if step1Page.Items.OriginalPmxPicker.Exists() {
 				model := step1Page.Items.OriginalPmxPicker.GetCache().(*pmx.PmxModel)
 
-				step1Page.Items.MotionPlayer.SetEnabled(true)
-				step1Page.Items.MotionPlayer.SetValue(0)
-
 				go func() {
 					mWindow.GetMainGlWindow().FrameChannel <- 0
 					mWindow.GetMainGlWindow().IsPlayingChannel <- false
@@ -123,7 +127,6 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 				go func() {
 					mWindow.GetMainGlWindow().RemoveModelSetIndexChannel <- 0
 				}()
-				step1Page.Items.MotionPlayer.SetEnabled(false)
 			}
 		}
 	}
