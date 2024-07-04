@@ -49,6 +49,9 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 		return nil, err
 	}
 
+	// OKボタン
+	stp.Items.okButton, err = walk.NewPushButton(stp.Items.composite)
+
 	// 元モデル設定時
 	step1Page.Items.OriginalPmxPicker.OnPathChanged = func(path string) {
 		func(path string) {
@@ -99,16 +102,17 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 					}
 
 					go func() {
-						mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]mwidget.ModelSet{0: {Model: model, Motion: motion}}
+						mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextMotion: motion}}
 					}()
 				})
-				mlog.IL(mi18n.T("Step1モデル設定完了"))
 
 				go func() {
 					mWindow.GetMainGlWindow().FrameChannel <- 0
 					mWindow.GetMainGlWindow().IsPlayingChannel <- false
-					mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]mwidget.ModelSet{0: {Model: model, Motion: motion}}
+					mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextModel: model, NextMotion: motion}}
 				}()
+
+				mlog.IL(mi18n.T("Step1モデル設定完了"))
 			} else {
 				go func() {
 					mWindow.GetMainGlWindow().RemoveModelSetIndexChannel <- 0
@@ -133,12 +137,10 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 			step1Page.Items.MotionPlayer.SetValue(0)
 
 			if step1Page.Items.OriginalPmxPicker.Exists() {
-				model := step1Page.Items.OriginalPmxPicker.GetCache().(*pmx.PmxModel)
-
 				go func() {
 					mWindow.GetMainGlWindow().FrameChannel <- 0
 					mWindow.GetMainGlWindow().IsPlayingChannel <- false
-					mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]mwidget.ModelSet{0: {Model: model, Motion: motion}}
+					mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextMotion: motion}}
 				}()
 			} else {
 				go func() {
@@ -166,14 +168,17 @@ type Step2TabPage struct {
 type Step2Items struct {
 	stepItems
 	MaterialListBox *MaterialListBox
+	okButton        *walk.PushButton
 }
 
 func (si *Step2Items) SetEnabled(enabled bool) {
 	si.stepItems.SetEnabled(enabled)
 	si.MaterialListBox.SetEnabled(enabled)
+	si.okButton.SetEnabled(enabled)
 }
 
 func (si *Step2Items) Dispose() {
 	si.stepItems.Dispose()
 	si.MaterialListBox.Dispose()
+	si.okButton.Dispose()
 }
