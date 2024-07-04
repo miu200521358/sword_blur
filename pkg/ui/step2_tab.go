@@ -1,8 +1,8 @@
 package ui
 
 import (
-	"fmt"
 	"path/filepath"
+	"slices"
 
 	"github.com/miu200521358/mlib_go/pkg/mutils"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mi18n"
@@ -10,6 +10,7 @@ import (
 	"github.com/miu200521358/mlib_go/pkg/mwidget"
 	"github.com/miu200521358/mlib_go/pkg/pmx"
 	"github.com/miu200521358/mlib_go/pkg/vmd"
+	"github.com/miu200521358/sword_blur/pkg/usecase"
 	"github.com/miu200521358/walk/pkg/walk"
 )
 
@@ -72,6 +73,9 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 					return
 				}
 				model := data.(*pmx.PmxModel)
+				// 追加セットアップ
+				usecase.SetupModel(model)
+
 				var motion *vmd.VmdMotion
 				if step1Page.Items.OriginalVmdPicker.IsCached() {
 					motion = step1Page.Items.OriginalVmdPicker.GetCache().(*vmd.VmdMotion)
@@ -83,7 +87,20 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 				step1Page.Items.MotionPlayer.SetValue(0)
 				stp.SetEnabled(true)
 				stp.Items.MaterialListBox.SetMaterials(model.Materials, func(indexes []int) {
-					mlog.I(fmt.Sprintf("材質Indexes: %v", indexes))
+					for i := range model.Materials.Len() {
+						material := model.Materials.Get(i)
+						mf := vmd.NewMorphFrame(0)
+						if slices.Contains(indexes, i) {
+							mf.Ratio = 0.0
+						} else {
+							mf.Ratio = 1.0
+						}
+						motion.AppendMorphFrame(usecase.GetVisibleMorphName(material), mf)
+					}
+
+					go func() {
+						mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]mwidget.ModelSet{0: {Model: model, Motion: motion}}
+					}()
 				})
 				mlog.IL(mi18n.T("Step1モデル設定完了"))
 
