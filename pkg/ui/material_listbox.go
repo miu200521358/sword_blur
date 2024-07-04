@@ -3,6 +3,7 @@ package ui
 import (
 	"github.com/miu200521358/mlib_go/pkg/pmx"
 	"github.com/miu200521358/walk/pkg/walk"
+	"github.com/miu200521358/win"
 )
 
 type MaterialListBox struct {
@@ -13,7 +14,8 @@ type MaterialListBox struct {
 func NewMaterialListBox(
 	parent walk.Container,
 ) (*MaterialListBox, error) {
-	lb, err := walk.NewListBox(parent)
+	// 複数選択リストボックス
+	lb, err := walk.NewListBoxWithStyle(parent, win.LBS_MULTIPLESEL)
 	if err != nil {
 		return nil, err
 	}

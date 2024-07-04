@@ -21,7 +21,7 @@ require (
 	github.com/ftrvxmtrx/tga v0.0.0-20150524081124-bd8e8d5be13a // indirect
 	github.com/miu200521358/dds v0.0.0 // indirect
 	github.com/miu200521358/mlib_go v0.0.1
-	github.com/miu200521358/win v0.0.1 // indirect
+	github.com/miu200521358/win v0.0.1
 	golang.org/x/image v0.15.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
 	gopkg.in/Knetic/govaluate.v3 v3.0.0 // indirect
