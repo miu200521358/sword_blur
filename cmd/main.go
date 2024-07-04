@@ -38,27 +38,44 @@ func main() {
 
 	appConfig := mconfig.LoadAppConfig(resourceFiles)
 	appConfig.Env = env
+	mi18n.Initialize(resourceFiles)
 
-	if appConfig.IsEnvProd() {
+	if appConfig.IsEnvProd() || appConfig.IsEnvDev() {
 		defer mwidget.RecoverFromPanic(mWindow)
 	}
 
-	mWindow, err = mwidget.NewMWindow(resourceFiles, appConfig, true, 512, 768, ui.GetMenuItems)
-	mwidget.CheckError(err, nil, mi18n.T("メインウィンドウ生成エラー"))
-
-	filePage, err := ui.NewFileTabPage(mWindow, resourceFiles)
-	mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
-
-	glWindow, err := mwidget.NewGlWindow(fmt.Sprintf("%s %s", mWindow.Title(), mi18n.T("ビューワー")),
-		512, 768, 0, resourceFiles, nil, filePage.Step1.MotionPlayer, nil, nil)
+	glWindow, err := mwidget.NewGlWindow(mi18n.T("ビューワー"), 512, 768, 0, resourceFiles, nil, nil)
 	mwidget.CheckError(err, mWindow, mi18n.T("ビューワーウィンドウ生成エラー"))
-	mWindow.AddGlWindow(glWindow)
 
-	// コンソールはタブ外に表示
-	mWindow.ConsoleView, err = mwidget.NewConsoleView(mWindow, 256, 30)
-	mwidget.CheckError(err, mWindow, mi18n.T("コンソール生成エラー"))
-	log.SetOutput(mWindow.ConsoleView)
+	go func() {
+		mWindow, err = mwidget.NewMWindow(resourceFiles, appConfig, true, 512, 768, ui.GetMenuItems)
+		mwidget.CheckError(err, nil, mi18n.T("メインウィンドウ生成エラー"))
 
-	mWindow.Center()
-	mWindow.Run()
+		step1Page, err := ui.NewStep1TabPage(mWindow, resourceFiles)
+		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
+
+		_, err = ui.NewStep2TabPage(mWindow, step1Page)
+		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
+
+		// コンソールはタブ外に表示
+		mWindow.ConsoleView, err = mwidget.NewConsoleView(mWindow, 256, 30)
+		mwidget.CheckError(err, mWindow, mi18n.T("コンソール生成エラー"))
+		log.SetOutput(mWindow.ConsoleView)
+
+		glWindow.SetMotionPlayer(step1Page.Items.MotionPlayer)
+		glWindow.SetTitle(fmt.Sprintf("%s %s", mWindow.Title(), mi18n.T("ビューワー")))
+		mWindow.AddGlWindow(glWindow)
+
+		mWindow.AsFormBase().Closing().Attach(func(canceled *bool, reason walk.CloseReason) {
+			go func() {
+				mWindow.GetMainGlWindow().IsClosedChannel <- true
+			}()
+			mWindow.Close()
+		})
+
+		mWindow.Center()
+		mWindow.Run()
+	}()
+
+	glWindow.Run()
 }

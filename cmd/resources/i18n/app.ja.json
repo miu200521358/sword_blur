@@ -37,7 +37,7 @@
     },
     {
         "id": "Step1Label",
-        "translation": "\n・ブレ設定を入れたいPmxモデルを指定してください\n・モーションの設定は任意です"
+        "translation": "・ブレ設定を入れたいPmxモデルを指定してください\n・モーションの設定は任意です"
     },
     {
         "id": "Step2Label",
