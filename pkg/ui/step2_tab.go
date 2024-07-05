@@ -24,6 +24,7 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 	stp := &Step2TabPage{
 		MTabPage: page,
 		mWindow:  mWindow,
+		prevStep: step1Page,
 		Items:    &Step2Items{},
 	}
 
@@ -96,6 +97,7 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 				step1Page.Items.MotionPlayer.SetValue(0)
 				stp.SetEnabled(true)
 				stp.Items.MaterialListBox.SetMaterials(model.Materials, func(indexes []int) {
+					invisibleMaterialIndexes := make([]int, 0)
 					for i := range model.Materials.Len() {
 						material := model.Materials.Get(i)
 						mf := vmd.NewMorphFrame(0)
@@ -103,12 +105,13 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 							mf.Ratio = 0.0
 						} else {
 							mf.Ratio = 1.0
+							invisibleMaterialIndexes = append(invisibleMaterialIndexes, i)
 						}
 						motion.AppendMorphFrame(usecase.GetVisibleMorphName(material), mf)
 					}
 
 					go func() {
-						mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextMotion: motion}}
+						mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextMotion: motion, NextInvisibleMaterialIndexes: invisibleMaterialIndexes}}
 					}()
 				})
 
@@ -118,15 +121,11 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 					mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextModel: model, NextMotion: motion}}
 				}()
 
-				mlog.IL(mi18n.T("Step1モデル設定完了"))
 			} else {
 				go func() {
 					mWindow.GetMainGlWindow().RemoveModelSetIndexChannel <- 0
 				}()
 				step1Page.Items.MotionPlayer.SetEnabled(false)
-				stp.SetEnabled(false)
-
-				mlog.IL(mi18n.T("Step1モデル設定失敗"))
 			}
 		}(path)
 	}
@@ -160,6 +159,19 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 
 	stp.SetEnabled(false)
 
+	// Step1. OKボタンクリック時
+	step1Page.Items.okButton.Clicked().Attach(func() {
+		if step1Page.Items.OriginalPmxPicker.Exists() {
+			stp.SetEnabled(true)
+			stp.mWindow.TabWidget.SetCurrentIndex(1) // Step2へ移動
+			mlog.IL(mi18n.T("Step1モデル設定完了"))
+		} else {
+			stp.SetEnabled(false)
+			mlog.IL(mi18n.T("Step1モデル設定失敗"))
+			return
+		}
+	})
+
 	return stp, nil
 }
 
@@ -167,8 +179,9 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 
 type Step2TabPage struct {
 	*mwidget.MTabPage
-	mWindow *mwidget.MWindow
-	Items   *Step2Items
+	mWindow  *mwidget.MWindow
+	prevStep *Step1TabPage
+	Items    *Step2Items
 }
 
 // ------------------------------

@@ -103,6 +103,13 @@ func NewStep1TabPage(mWindow *mwidget.MWindow, resourceFiles embed.FS) (*Step1Ta
 	}
 	layout.SetStretchFactor(stretchWidget, 100)
 
+	// OKボタン
+	stp.Items.okButton, err = walk.NewPushButton(stp.Items.composite)
+	if err != nil {
+		return nil, err
+	}
+	stp.Items.okButton.SetText(mi18n.T("次へ進む"))
+
 	return stp, nil
 }
 
@@ -136,6 +143,7 @@ type Step1Items struct {
 	OriginalPmxPicker *mwidget.FilePicker
 	OriginalVmdPicker *mwidget.FilePicker
 	OutputPmxPicker   *mwidget.FilePicker
+	okButton          *walk.PushButton
 }
 
 func (si *Step1Items) SetEnabled(enabled bool) {

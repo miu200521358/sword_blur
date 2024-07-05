@@ -1,6 +1,9 @@
 package ui
 
 import (
+	"slices"
+
+	"github.com/miu200521358/mlib_go/pkg/mutils"
 	"github.com/miu200521358/walk/pkg/walk"
 	"github.com/miu200521358/win"
 )
@@ -30,6 +33,46 @@ func NewVertexListBox(
 	lb.SetModel(m)
 
 	return &VertexListBox{ListBox: lb, VertexListModel: m}, nil
+}
+
+func (lb *VertexListBox) GetItemValues() []int {
+	items := make([]int, 0)
+	for _, item := range lb.VertexListModel.items {
+		// カンマ繋ぎの文字列を数値リストに変換
+		itemValues, err := mutils.SplitCommaSeparatedInts(item)
+		if err == nil {
+			items = append(items, itemValues...)
+		}
+	}
+	return items
+}
+
+func (lb *VertexListBox) SetItem(items []int) {
+	// 順不同なのでとりあえずソート
+	slices.Sort(items)
+	// 頂点番号リストをカンマで繋ぐ
+	itemStr := mutils.JoinIntsWithComma(items)
+	isRemoved := false
+	for i, it := range lb.VertexListModel.items {
+		if it == itemStr {
+			lb.RemoveItem(i)
+			isRemoved = true
+			break
+		}
+	}
+	if !isRemoved {
+		lb.AppendItem(itemStr)
+	}
+}
+
+func (lb *VertexListBox) AppendItem(item string) {
+	lb.VertexListModel.items = append(lb.VertexListModel.items, item)
+	lb.VertexListModel.PublishItemsInserted(len(lb.VertexListModel.items)-1, len(lb.VertexListModel.items)-1)
+}
+
+func (lb *VertexListBox) RemoveItem(index int) {
+	lb.VertexListModel.items = append(lb.VertexListModel.items[:index], lb.VertexListModel.items[index+1:]...)
+	lb.VertexListModel.PublishItemsRemoved(index, index)
 }
 
 type VertexListModel struct {

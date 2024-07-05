@@ -1,9 +1,13 @@
 package ui
 
 import (
+	"slices"
+
+	"github.com/miu200521358/mlib_go/pkg/mmath"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mi18n"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mlog"
 	"github.com/miu200521358/mlib_go/pkg/mwidget"
+	"github.com/miu200521358/mlib_go/pkg/pmx"
 	"github.com/miu200521358/walk/pkg/walk"
 )
 
@@ -17,6 +21,7 @@ func NewStep3TabPage(mWindow *mwidget.MWindow, step2Page *Step2TabPage) (*Step3T
 	stp := &Step3TabPage{
 		MTabPage: page,
 		mWindow:  mWindow,
+		prevStep: step2Page,
 		Items:    &Step3Items{},
 	}
 
@@ -54,13 +59,56 @@ func NewStep3TabPage(mWindow *mwidget.MWindow, step2Page *Step2TabPage) (*Step3T
 	// Step2. OKボタンクリック時
 	step2Page.Items.okButton.Clicked().Attach(func() {
 		if len(step2Page.Items.MaterialListBox.SelectedIndexes()) == 0 {
+			stp.SetEnabled(false)
 			mlog.IL(mi18n.T("Step2材質設定失敗"))
 			return
 		} else {
 			stp.SetEnabled(true)
+			stp.mWindow.SetCheckWireDebugView(true)
+			stp.mWindow.SetCheckSelectedVertexDebugView(true)
+			stp.mWindow.TabWidget.SetCurrentIndex(2) // Step3へ移動
 			mlog.IL(mi18n.T("Step2材質設定完了"))
 		}
 	})
+
+	stp.Items.FuncWorldPos = func(worldPos *mmath.MVec3, viewMat *mmath.MMat4) {
+		if step2Page.prevStep.Items.OriginalPmxPicker.Exists() && stp.Enabled() {
+			model := step2Page.prevStep.Items.OriginalPmxPicker.GetCache().(*pmx.PmxModel)
+			// 直近頂点を取得
+			tempVertex := pmx.NewVertex()
+			tempVertex.Position = worldPos
+			vertexIndexes, vertexPositions := model.Vertices.GetMapValues(tempVertex)
+			if len(vertexIndexes) > 0 {
+				visibleVertexIndexes := make([]int, 0)
+				visibleVertexPositions := make([]*mmath.MVec3, 0)
+				for i, vertexIndex := range vertexIndexes {
+					for _, materialIndex := range step2Page.Items.MaterialListBox.SelectedIndexes() {
+						// 表示されている材質からのみ直近頂点を選ぶ
+						if slices.Contains(model.Vertices.Get(vertexIndex).MaterialIndexes, materialIndex) &&
+							!slices.Contains(visibleVertexIndexes, vertexIndex) {
+							visibleVertexIndexes = append(visibleVertexIndexes, vertexIndex)
+							visibleVertexPositions = append(visibleVertexPositions, vertexPositions[i])
+							break
+						}
+					}
+				}
+				distances := mmath.Float64Slice(mmath.Distances(worldPos, visibleVertexPositions))
+				nearVertexIndexes := mmath.ArgSort(distances)
+				targetVertexIndexes := make([]int, 0)
+				for i, nearVertexIndex := range nearVertexIndexes {
+					if i == 0 || visibleVertexPositions[nearVertexIndexes[0]].NearEquals(visibleVertexPositions[nearVertexIndexes[i]], 1e-2) {
+						// 直近とほぼ同じ位置の頂点を選択
+						targetVertexIndexes = append(targetVertexIndexes, visibleVertexIndexes[nearVertexIndex])
+					}
+				}
+				stp.Items.VertexListBox.SetItem(targetVertexIndexes)
+
+				go func() {
+					mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextSelectedVertexIndexes: stp.Items.VertexListBox.GetItemValues()}}
+				}()
+			}
+		}
+	}
 
 	return stp, nil
 }
@@ -69,8 +117,9 @@ func NewStep3TabPage(mWindow *mwidget.MWindow, step2Page *Step2TabPage) (*Step3T
 
 type Step3TabPage struct {
 	*mwidget.MTabPage
-	mWindow *mwidget.MWindow
-	Items   *Step3Items
+	mWindow  *mwidget.MWindow
+	prevStep *Step2TabPage
+	Items    *Step3Items
 }
 
 // ------------------------------
@@ -79,6 +128,7 @@ type Step3Items struct {
 	stepItems
 	VertexListBox *VertexListBox
 	okButton      *walk.PushButton
+	FuncWorldPos  func(worldPos *mmath.MVec3, viewMat *mmath.MMat4)
 }
 
 func (si *Step3Items) SetEnabled(enabled bool) {
