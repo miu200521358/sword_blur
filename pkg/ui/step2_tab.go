@@ -1,8 +1,10 @@
 package ui
 
 import (
+	"fmt"
 	"path/filepath"
 	"slices"
+	"time"
 
 	"github.com/miu200521358/mlib_go/pkg/mutils"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mi18n"
@@ -72,7 +74,8 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 			// 出力パス設定
 			dir, file := filepath.Split(path)
 			ext := filepath.Ext(file)
-			outputPath := filepath.Join(dir, file[:len(file)-len(ext)]+"_blur"+ext)
+			fileName := fmt.Sprintf("%s_blur_%s%s", file[:len(file)-len(ext)], time.Now().Format("20060102_150405"), ext)
+			outputPath := filepath.Join(dir, fileName)
 			step1Page.Items.OutputPmxPicker.PathLineEdit.SetText(outputPath)
 
 			if step1Page.Items.OriginalPmxPicker.Exists() {

@@ -60,13 +60,24 @@ func main() {
 		step3Page, err := ui.NewStep3TabPage(mWindow, step2Page)
 		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
 
+		step4Page, err := ui.NewStep4TabPage(mWindow, step3Page)
+		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
+
+		// 関数紐付け切り替え
+		mWindow.TabWidget.CurrentIndexChanged().Attach(func() {
+			if mWindow.TabWidget.CurrentIndex() == 2 {
+				mWindow.GetMainGlWindow().SetFuncWorldPos(step3Page.Items.FuncWorldPos)
+			} else if mWindow.TabWidget.CurrentIndex() == 3 {
+				mWindow.GetMainGlWindow().SetFuncWorldPos(step4Page.Items.FuncWorldPos)
+			}
+		})
+
 		// コンソールはタブ外に表示
 		mWindow.ConsoleView, err = mwidget.NewConsoleView(mWindow, 256, 30)
 		mwidget.CheckError(err, mWindow, mi18n.T("コンソール生成エラー"))
 		log.SetOutput(mWindow.ConsoleView)
 
 		glWindow.SetMotionPlayer(step1Page.Items.MotionPlayer)
-		glWindow.SetFuncWorldPos(step3Page.Items.FuncWorldPos)
 		glWindow.SetTitle(fmt.Sprintf("%s %s", mWindow.Title(), mi18n.T("ビューワー")))
 		mWindow.AddGlWindow(glWindow)
 

@@ -8,24 +8,25 @@ import (
 	"github.com/miu200521358/mlib_go/pkg/mutils/mlog"
 	"github.com/miu200521358/mlib_go/pkg/mwidget"
 	"github.com/miu200521358/mlib_go/pkg/pmx"
+	"github.com/miu200521358/sword_blur/pkg/usecase"
 	"github.com/miu200521358/walk/pkg/walk"
 )
 
-func NewStep3TabPage(mWindow *mwidget.MWindow, step2Page *Step2TabPage) (*Step3TabPage, error) {
-	page, err := mwidget.NewMTabPage(mWindow, mWindow.TabWidget, "Step. 3")
+func NewStep4TabPage(mWindow *mwidget.MWindow, step3Page *Step3TabPage) (*Step4TabPage, error) {
+	page, err := mwidget.NewMTabPage(mWindow, mWindow.TabWidget, "Step. 4")
 	if err != nil {
 		return nil, err
 	}
 	page.SetLayout(walk.NewVBoxLayout())
 
-	stp := &Step3TabPage{
+	stp := &Step4TabPage{
 		MTabPage: page,
 		mWindow:  mWindow,
-		prevStep: step2Page,
-		Items:    &Step3Items{},
+		prevStep: step3Page,
+		Items:    &Step4Items{},
 	}
 
-	// Step3. 峰選択
+	// Step4. 刃選択
 
 	stp.Items.composite, err = walk.NewComposite(stp)
 	if err != nil {
@@ -37,7 +38,7 @@ func NewStep3TabPage(mWindow *mwidget.MWindow, step2Page *Step2TabPage) (*Step3T
 	if err != nil {
 		return nil, err
 	}
-	stp.Items.label.SetText(mi18n.T("Step3Label"))
+	stp.Items.label.SetText(mi18n.T("Step4Label"))
 
 	walk.NewVSeparator(stp.Items.composite)
 
@@ -52,34 +53,34 @@ func NewStep3TabPage(mWindow *mwidget.MWindow, step2Page *Step2TabPage) (*Step3T
 	if err != nil {
 		return nil, err
 	}
-	stp.Items.okButton.SetText(mi18n.T("次へ進む"))
+	stp.Items.okButton.SetText(mi18n.T("出力"))
 
 	stp.SetEnabled(false)
 
-	// Step2. OKボタンクリック時
-	step2Page.Items.okButton.Clicked().Attach(func() {
-		if len(step2Page.Items.MaterialListBox.SelectedIndexes()) == 0 {
+	// Step3. OKボタンクリック時
+	step3Page.Items.okButton.Clicked().Attach(func() {
+		if len(step3Page.Items.VertexListBox.GetItemValues()) == 0 {
 			stp.SetEnabled(false)
-			mlog.IL(mi18n.T("Step2材質設定失敗"))
+			mlog.IL(mi18n.T("Step3峰頂点設定失敗"))
 			return
 		} else {
 			stp.SetEnabled(true)
 			stp.mWindow.SetCheckWireDebugView(true)
 			stp.mWindow.SetCheckSelectedVertexDebugView(true)
-			stp.mWindow.TabWidget.SetCurrentIndex(2)                              // Step3へ移動
+			stp.mWindow.TabWidget.SetCurrentIndex(3)                              // Step4へ移動
 			stp.mWindow.GetMainGlWindow().SetFuncWorldPos(stp.Items.FuncWorldPos) // 頂点選択時のターゲットfunction変更
 
 			go func() {
 				mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextSelectedVertexIndexes: []int{}}}
 			}()
 
-			mlog.IL(mi18n.T("Step2材質設定完了"))
+			mlog.IL(mi18n.T("Step3峰頂点設定完了"))
 		}
 	})
 
 	stp.Items.FuncWorldPos = func(worldPos *mmath.MVec3, viewMat *mmath.MMat4) {
-		if step2Page.prevStep.Items.OriginalPmxPicker.Exists() && stp.Enabled() {
-			model := step2Page.prevStep.Items.OriginalPmxPicker.GetCache().(*pmx.PmxModel)
+		if step3Page.prevStep.prevStep.Items.OriginalPmxPicker.Exists() && stp.Enabled() {
+			model := step3Page.prevStep.prevStep.Items.OriginalPmxPicker.GetCache().(*pmx.PmxModel)
 			// 直近頂点を取得
 			tempVertex := pmx.NewVertex()
 			tempVertex.Position = worldPos
@@ -88,7 +89,7 @@ func NewStep3TabPage(mWindow *mwidget.MWindow, step2Page *Step2TabPage) (*Step3T
 				visibleVertexIndexes := make([]int, 0)
 				visibleVertexPositions := make([]*mmath.MVec3, 0)
 				for i, vertexIndex := range vertexIndexes {
-					for _, materialIndex := range step2Page.Items.MaterialListBox.SelectedIndexes() {
+					for _, materialIndex := range step3Page.prevStep.Items.MaterialListBox.SelectedIndexes() {
 						// 表示されている材質からのみ直近頂点を選ぶ
 						if slices.Contains(model.Vertices.Get(vertexIndex).MaterialIndexes, materialIndex) &&
 							!slices.Contains(visibleVertexIndexes, vertexIndex) {
@@ -116,34 +117,57 @@ func NewStep3TabPage(mWindow *mwidget.MWindow, step2Page *Step2TabPage) (*Step3T
 		}
 	}
 
+	// Step4. OKボタンクリック時
+	stp.Items.okButton.Clicked().Attach(func() {
+		if len(stp.Items.VertexListBox.GetItemValues()) == 0 {
+			stp.SetEnabled(false)
+			mlog.IL(mi18n.T("Step4刃頂点設定失敗"))
+			return
+		} else {
+			err := usecase.Save(
+				stp.prevStep.prevStep.prevStep.Items.OriginalPmxPicker.GetCache().(*pmx.PmxModel),
+				stp.prevStep.prevStep.prevStep.Items.OutputPmxPicker.GetPath(),
+				stp.prevStep.prevStep.Items.MaterialListBox.SelectedIndexes(),
+				stp.prevStep.Items.VertexListBox.GetItemValues(),
+				stp.Items.VertexListBox.GetItemValues(),
+			)
+
+			if err != nil {
+				mlog.ET(mi18n.T("出力失敗"), mi18n.T("出力失敗メッセージ", map[string]interface{}{"Error": err.Error()}))
+			} else {
+				mlog.IT(mi18n.T("出力成功"), mi18n.T("出力成功メッセージ", map[string]interface{}{"Path": stp.prevStep.prevStep.prevStep.Items.OutputPmxPicker.GetPath()}))
+			}
+		}
+	})
+
 	return stp, nil
 }
 
 // ------------------------------
 
-type Step3TabPage struct {
+type Step4TabPage struct {
 	*mwidget.MTabPage
 	mWindow  *mwidget.MWindow
-	prevStep *Step2TabPage
-	Items    *Step3Items
+	prevStep *Step3TabPage
+	Items    *Step4Items
 }
 
 // ------------------------------
 
-type Step3Items struct {
+type Step4Items struct {
 	stepItems
 	VertexListBox *VertexListBox
 	okButton      *walk.PushButton
 	FuncWorldPos  func(worldPos *mmath.MVec3, viewMat *mmath.MMat4)
 }
 
-func (si *Step3Items) SetEnabled(enabled bool) {
+func (si *Step4Items) SetEnabled(enabled bool) {
 	si.stepItems.SetEnabled(enabled)
 	si.VertexListBox.SetEnabled(enabled)
 	si.okButton.SetEnabled(enabled)
 }
 
-func (si *Step3Items) Dispose() {
+func (si *Step4Items) Dispose() {
 	si.stepItems.Dispose()
 	si.VertexListBox.Dispose()
 	si.okButton.Dispose()
