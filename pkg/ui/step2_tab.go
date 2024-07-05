@@ -51,6 +51,10 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 
 	// OKボタン
 	stp.Items.okButton, err = walk.NewPushButton(stp.Items.composite)
+	if err != nil {
+		return nil, err
+	}
+	stp.Items.okButton.SetText(mi18n.T("次へ進む"))
 
 	// 元モデル設定時
 	step1Page.Items.OriginalPmxPicker.OnPathChanged = func(path string) {
@@ -58,6 +62,7 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 			isExist, err := mutils.ExistsFile(path)
 			if !isExist || err != nil {
 				step1Page.Items.OutputPmxPicker.PathLineEdit.SetText("")
+				mlog.IL(mi18n.T("Step1モデル設定失敗"))
 				return
 			}
 
@@ -73,6 +78,7 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 				data, err := step1Page.Items.OriginalPmxPicker.GetData()
 				if err != nil {
 					mlog.E(mi18n.T("Pmxファイル読み込みエラー"), err.Error())
+					mlog.IL(mi18n.T("Step1モデル設定失敗"))
 					return
 				}
 				model := data.(*pmx.PmxModel)
@@ -119,6 +125,8 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 				}()
 				step1Page.Items.MotionPlayer.SetEnabled(false)
 				stp.SetEnabled(false)
+
+				mlog.IL(mi18n.T("Step1モデル設定失敗"))
 			}
 		}(path)
 	}

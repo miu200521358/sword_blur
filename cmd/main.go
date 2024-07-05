@@ -54,7 +54,10 @@ func main() {
 		step1Page, err := ui.NewStep1TabPage(mWindow, resourceFiles)
 		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
 
-		_, err = ui.NewStep2TabPage(mWindow, step1Page)
+		step2Page, err := ui.NewStep2TabPage(mWindow, step1Page)
+		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
+
+		_, err = ui.NewStep3TabPage(mWindow, step2Page)
 		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
 
 		// コンソールはタブ外に表示
