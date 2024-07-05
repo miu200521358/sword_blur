@@ -125,7 +125,7 @@ func NewStep4TabPage(mWindow *mwidget.MWindow, step3Page *Step3TabPage) (*Step4T
 			return
 		} else {
 			err := usecase.Save(
-				stp.prevStep.prevStep.prevStep.Items.OriginalPmxPicker.GetCache().(*pmx.PmxModel),
+				stp.prevStep.prevStep.prevStep.Items.OriginalPmxPicker.GetDataForce().(*pmx.PmxModel),
 				stp.prevStep.prevStep.prevStep.Items.OutputPmxPicker.GetPath(),
 				stp.prevStep.prevStep.Items.MaterialListBox.SelectedIndexes(),
 				stp.prevStep.Items.VertexListBox.GetItemValues(),

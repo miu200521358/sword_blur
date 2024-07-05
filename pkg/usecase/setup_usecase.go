@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/miu200521358/mlib_go/pkg/mmath"
 	"github.com/miu200521358/mlib_go/pkg/pmx"
@@ -13,11 +12,11 @@ func SetupModel(model *pmx.PmxModel) {
 	// 材質モーフ追加
 	addMaterialMorph(model)
 
-	dir, file := filepath.Split(model.GetPath())
-	ext := filepath.Ext(file)
-	outputPath := filepath.Join(dir, file[:len(file)-len(ext)]+"_debug"+ext)
+	// dir, file := filepath.Split(model.GetPath())
+	// ext := filepath.Ext(file)
+	// outputPath := filepath.Join(dir, file[:len(file)-len(ext)]+"_debug"+ext)
 
-	model.Save(true, outputPath)
+	// model.Save(true, outputPath)
 }
 
 func addMaterialMorph(model *pmx.PmxModel) {
