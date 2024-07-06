@@ -86,7 +86,7 @@ func NewStep1TabPage(mWindow *mwidget.MWindow, resourceFiles embed.FS) (*Step1Ta
 		stp.Items.MotionPlayer.SetEnabled(!isPlaying)
 		stp.Items.MotionPlayer.PlayButton.SetEnabled(true)
 		for _, glWindow := range mWindow.GlWindows {
-			glWindow.Play(isPlaying)
+			glWindow.TriggerPlay(isPlaying)
 		}
 
 		return nil

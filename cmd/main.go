@@ -44,7 +44,7 @@ func main() {
 		defer mwidget.RecoverFromPanic(mWindow)
 	}
 
-	glWindow, err := mwidget.NewGlWindow(mi18n.T("ビューワー"), 512, 768, 0, resourceFiles, nil, nil)
+	glWindow, err := mwidget.NewGlWindow(mi18n.T("ビューワー"), 512, 768, 0, resourceFiles, appConfig, nil, nil)
 	mwidget.CheckError(err, mWindow, mi18n.T("ビューワーウィンドウ生成エラー"))
 
 	go func() {

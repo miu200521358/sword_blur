@@ -8,6 +8,7 @@ import (
 	"github.com/miu200521358/mlib_go/pkg/mutils/mlog"
 	"github.com/miu200521358/mlib_go/pkg/mwidget"
 	"github.com/miu200521358/mlib_go/pkg/pmx"
+	"github.com/miu200521358/mlib_go/pkg/vmd"
 	"github.com/miu200521358/walk/pkg/walk"
 )
 
@@ -77,7 +78,7 @@ func NewStep3TabPage(mWindow *mwidget.MWindow, step2Page *Step2TabPage) (*Step3T
 		}
 	})
 
-	stp.Items.FuncWorldPos = func(worldPos *mmath.MVec3, viewMat *mmath.MMat4) {
+	stp.Items.FuncWorldPos = func(worldPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas, viewMat *mmath.MMat4) {
 		if step2Page.prevStep.Items.OriginalPmxPicker.Exists() && stp.Enabled() {
 			model := step2Page.prevStep.Items.OriginalPmxPicker.GetCache().(*pmx.PmxModel)
 			// 直近頂点を取得
@@ -134,7 +135,7 @@ type Step3Items struct {
 	stepItems
 	VertexListBox *VertexListBox
 	okButton      *walk.PushButton
-	FuncWorldPos  func(worldPos *mmath.MVec3, viewMat *mmath.MMat4)
+	FuncWorldPos  func(worldPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas, viewMat *mmath.MMat4)
 }
 
 func (si *Step3Items) SetEnabled(enabled bool) {
