@@ -35,9 +35,6 @@ var appFiles embed.FS
 //go:embed i18n/*
 var appI18nFiles embed.FS
 
-//go:embed icon/*
-var iconFiles embed.FS
-
 func main() {
 	var mWindow *mwidget.MWindow
 	var err error
@@ -60,7 +57,7 @@ func main() {
 		mWindow, err = mwidget.NewMWindow(512, 768, ui.GetMenuItems, iconImg, appConfig, true)
 		mwidget.CheckError(err, nil, mi18n.T("メインウィンドウ生成エラー"))
 
-		step1Page, err := ui.NewStep1TabPage(mWindow, iconFiles)
+		step1Page, err := ui.NewStep1TabPage(mWindow)
 		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
 
 		step2Page, err := ui.NewStep2TabPage(mWindow, step1Page)
