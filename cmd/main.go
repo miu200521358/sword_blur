@@ -29,29 +29,38 @@ func init() {
 
 var env string
 
-//go:embed resources/*
-var resourceFiles embed.FS
+//go:embed app/*
+var appFiles embed.FS
+
+//go:embed i18n/*
+var appI18nFiles embed.FS
+
+//go:embed icon/*
+var iconFiles embed.FS
 
 func main() {
 	var mWindow *mwidget.MWindow
 	var err error
 
-	appConfig := mconfig.LoadAppConfig(resourceFiles)
+	appConfig := mconfig.LoadAppConfig(appFiles)
 	appConfig.Env = env
-	mi18n.Initialize(resourceFiles)
+	mi18n.Initialize(appI18nFiles)
 
 	if appConfig.IsEnvProd() || appConfig.IsEnvDev() {
 		defer mwidget.RecoverFromPanic(mWindow)
 	}
 
-	glWindow, err := mwidget.NewGlWindow(mi18n.T("ビューワー"), 512, 768, 0, resourceFiles, appConfig, nil, nil)
+	iconImg, err := mconfig.LoadIconFile(appFiles)
+	mwidget.CheckError(err, nil, mi18n.T("アイコン生成エラー"))
+
+	glWindow, err := mwidget.NewGlWindow(512, 768, 0, iconImg, appConfig, nil, nil)
 	mwidget.CheckError(err, mWindow, mi18n.T("ビューワーウィンドウ生成エラー"))
 
 	go func() {
-		mWindow, err = mwidget.NewMWindow(resourceFiles, appConfig, true, 512, 768, ui.GetMenuItems)
+		mWindow, err = mwidget.NewMWindow(512, 768, ui.GetMenuItems, iconImg, appConfig, true)
 		mwidget.CheckError(err, nil, mi18n.T("メインウィンドウ生成エラー"))
 
-		step1Page, err := ui.NewStep1TabPage(mWindow, resourceFiles)
+		step1Page, err := ui.NewStep1TabPage(mWindow, iconFiles)
 		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
 
 		step2Page, err := ui.NewStep2TabPage(mWindow, step1Page)

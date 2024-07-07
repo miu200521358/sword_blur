@@ -8,7 +8,7 @@ import (
 	"github.com/miu200521358/walk/pkg/walk"
 )
 
-func NewStep1TabPage(mWindow *mwidget.MWindow, resourceFiles embed.FS) (*Step1TabPage, error) {
+func NewStep1TabPage(mWindow *mwidget.MWindow, iconFiles embed.FS) (*Step1TabPage, error) {
 	page, err := mwidget.NewMTabPage(mWindow, mWindow.TabWidget, "Step. 1")
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func NewStep1TabPage(mWindow *mwidget.MWindow, resourceFiles embed.FS) (*Step1Ta
 	}
 
 	// プレイヤーBox
-	stp.Items.MotionPlayer, err = mwidget.NewMotionPlayer(stp.Items.composite, mWindow, resourceFiles)
+	stp.Items.MotionPlayer, err = mwidget.NewMotionPlayer(stp.Items.composite, mWindow, iconFiles)
 	if err != nil {
 		return nil, err
 	}
