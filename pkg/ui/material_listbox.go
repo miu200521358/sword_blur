@@ -36,6 +36,7 @@ func NewMaterialListBox(
 func (lb *MaterialListBox) SetMaterials(
 	materials *pmx.Materials, funcChange func(indexes []int),
 ) {
+	lb.MaterialListModel.items = make([]string, 0)
 	for i := range materials.Len() {
 		material := materials.Get(i)
 		lb.MaterialListModel.items = append(lb.MaterialListModel.items, material.Name)

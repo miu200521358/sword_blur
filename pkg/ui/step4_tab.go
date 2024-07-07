@@ -49,12 +49,19 @@ func NewStep4TabPage(mWindow *mwidget.MWindow, step3Page *Step3TabPage) (*Step4T
 		return nil, err
 	}
 
-	// OKボタン
-	stp.Items.okButton, err = walk.NewPushButton(stp.Items.composite)
+	// プレビューボタン
+	stp.Items.previewButton, err = walk.NewPushButton(stp.Items.composite)
 	if err != nil {
 		return nil, err
 	}
-	stp.Items.okButton.SetText(mi18n.T("出力"))
+	stp.Items.previewButton.SetText(mi18n.T("プレビュー"))
+
+	// 保存ボタン
+	stp.Items.saveButton, err = walk.NewPushButton(stp.Items.composite)
+	if err != nil {
+		return nil, err
+	}
+	stp.Items.saveButton.SetText(mi18n.T("保存"))
 
 	stp.SetEnabled(false)
 
@@ -118,25 +125,52 @@ func NewStep4TabPage(mWindow *mwidget.MWindow, step3Page *Step3TabPage) (*Step4T
 		}
 	}
 
-	// Step4. OKボタンクリック時
-	stp.Items.okButton.Clicked().Attach(func() {
+	// Step4. プレビューボタンクリック時
+	stp.Items.previewButton.Clicked().Attach(func() {
 		if len(stp.Items.VertexListBox.GetItemValues()) == 0 {
 			stp.SetEnabled(false)
 			mlog.IL(mi18n.T("Step4刃頂点設定失敗"))
 			return
 		} else {
-			err := usecase.Save(
+			outputModel, previewVmd, err := usecase.Preview(
 				stp.prevStep.prevStep.prevStep.Items.OriginalPmxPicker.GetDataForce().(*pmx.PmxModel),
-				stp.prevStep.prevStep.prevStep.Items.OutputPmxPicker.GetPath(),
 				stp.prevStep.prevStep.Items.MaterialListBox.SelectedIndexes(),
 				stp.prevStep.Items.VertexListBox.GetItemValues(),
 				stp.Items.VertexListBox.GetItemValues(),
 			)
 
 			if err != nil {
+				mlog.ET(mi18n.T("生成失敗"), mi18n.T("生成失敗メッセージ", map[string]interface{}{"Error": err.Error()}))
+			} else {
+				stp.Items.saveButton.SetEnabled(true)
+				mlog.IT(mi18n.T("生成成功"), mi18n.T("生成成功メッセージ"))
+
+				nowMaxFrame := stp.prevStep.prevStep.prevStep.Items.MotionPlayer.FrameEdit.MaxValue()
+				if previewVmd.BoneFrames.GetMaxFrame() > int(nowMaxFrame) {
+					stp.prevStep.prevStep.prevStep.Items.MotionPlayer.FrameEdit.SetRange(
+						0.0, float64(previewVmd.BoneFrames.GetMaxFrame()+1))
+				}
+				stp.prevStep.prevStep.prevStep.Items.MotionPlayer.Play(true)
+
+				go func() {
+					mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{1: {NextModel: outputModel, NextMotion: previewVmd}}
+					mWindow.GetMainGlWindow().IsPlayingChannel <- true
+				}()
+			}
+		}
+	})
+
+	stp.Items.saveButton.Clicked().Attach(func() {
+		if stp.outputModel == nil {
+			mlog.IT(mi18n.T("出力モデルなし"), mi18n.T("出力モデルなしメッセージ"))
+			return
+		} else {
+			outputPath := stp.prevStep.prevStep.prevStep.Items.OutputPmxPicker.GetPath()
+
+			if err := usecase.Save(stp.outputModel, outputPath); err != nil {
 				mlog.ET(mi18n.T("出力失敗"), mi18n.T("出力失敗メッセージ", map[string]interface{}{"Error": err.Error()}))
 			} else {
-				mlog.IT(mi18n.T("出力成功"), mi18n.T("出力成功メッセージ", map[string]interface{}{"Path": stp.prevStep.prevStep.prevStep.Items.OutputPmxPicker.GetPath()}))
+				mlog.IT(mi18n.T("出力成功"), mi18n.T("出力成功メッセージ", map[string]interface{}{"Path": outputPath}))
 			}
 		}
 	})
@@ -148,9 +182,10 @@ func NewStep4TabPage(mWindow *mwidget.MWindow, step3Page *Step3TabPage) (*Step4T
 
 type Step4TabPage struct {
 	*mwidget.MTabPage
-	mWindow  *mwidget.MWindow
-	prevStep *Step3TabPage
-	Items    *Step4Items
+	mWindow     *mwidget.MWindow
+	prevStep    *Step3TabPage
+	Items       *Step4Items
+	outputModel *pmx.PmxModel
 }
 
 // ------------------------------
@@ -158,18 +193,21 @@ type Step4TabPage struct {
 type Step4Items struct {
 	stepItems
 	VertexListBox *VertexListBox
-	okButton      *walk.PushButton
+	previewButton *walk.PushButton
+	saveButton    *walk.PushButton
 	FuncWorldPos  func(worldPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas, viewMat *mmath.MMat4)
 }
 
 func (si *Step4Items) SetEnabled(enabled bool) {
 	si.stepItems.SetEnabled(enabled)
 	si.VertexListBox.SetEnabled(enabled)
-	si.okButton.SetEnabled(enabled)
+	si.previewButton.SetEnabled(enabled)
+	si.saveButton.SetEnabled(enabled)
 }
 
 func (si *Step4Items) Dispose() {
 	si.stepItems.Dispose()
 	si.VertexListBox.Dispose()
-	si.okButton.Dispose()
+	si.previewButton.Dispose()
+	si.saveButton.Dispose()
 }
