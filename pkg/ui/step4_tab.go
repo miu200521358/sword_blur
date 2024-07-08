@@ -121,8 +121,8 @@ func NewStep4TabPage(mWindow *mwidget.MWindow, step3Page *Step3TabPage) (*Step4T
 				if previewVmd.BoneFrames.GetMaxFrame() > int(nowMaxFrame) {
 					stp.prevStep.prevStep.prevStep.Items.MotionPlayer.SetRange(0, previewVmd.BoneFrames.GetMaxFrame()+1)
 				}
-				stp.mWindow.SetCheckWireDebugView(false)
-				stp.mWindow.SetCheckSelectedVertexDebugView(false)
+				// stp.mWindow.SetCheckWireDebugView(false)
+				// stp.mWindow.SetCheckSelectedVertexDebugView(false)
 				stp.prevStep.prevStep.prevStep.Items.MotionPlayer.SetValue(0)
 				stp.prevStep.prevStep.prevStep.Items.MotionPlayer.Play(true)
 				stp.outputModel = outputModel

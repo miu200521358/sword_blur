@@ -121,6 +121,9 @@ func createModel(
 	// ジョイント
 	createJoint(model, blurBone, blurRootRigidBody, blurRigidBody, rootVector, backVector)
 
+	// モデル再セットアップ
+	model.Setup()
+
 	return model, blurRootBone, blurBone
 }
 
@@ -202,6 +205,7 @@ func createBlurRootBone(
 	blurRootBone.Name = "ブレ根元"
 	blurRootBone.EnglishName = "Blur Root"
 	blurRootBone.IsSystem = false // システム用ではなく出力用
+	blurRootBone.Layer = 0
 
 	// 元々刀身のウェイトが乗っていたボーンを親ボーンとする
 	blurRootBone.ParentIndex = backRootVertex.Deform.GetAllIndexes()[0]
@@ -228,6 +232,7 @@ func createBlurBone(
 	blurBone.EnglishName = "Blur"
 	blurBone.ParentIndex = blurRootBone.Index
 	blurBone.IsSystem = false // システム用ではなく出力用
+	blurBone.Layer = 0
 
 	blurBone.Position = blurRootBone.Position.Copy()
 	// 移動可能, 回転可能, 操作可能, 表示枠追加, 軸制限, 物理後
@@ -254,6 +259,7 @@ func createBlurTailBone(
 	blurTailBone.ParentIndex = blurRootBone.Index
 	blurTailBone.IsSystem = false // システム用ではなく出力用
 	blurTailBone.IsSystem = false // システム用ではなく出力用
+	blurTailBone.Layer = 0
 
 	// 移動可能, 回転可能, 操作可能, 表示枠追加, 物理後
 	blurTailBone.BoneFlag = pmx.BONE_FLAG_CAN_TRANSLATE | pmx.BONE_FLAG_CAN_ROTATE | pmx.BONE_FLAG_CAN_MANIPULATE | pmx.BONE_FLAG_IS_VISIBLE | pmx.BONE_FLAG_IS_AFTER_PHYSICS_DEFORM
@@ -279,6 +285,7 @@ func createBlurIkBone(
 	blurIkBone.EnglishName = "Blur IK"
 	blurIkBone.ParentIndex = blurRootBone.Index
 	blurIkBone.IsSystem = false // システム用ではなく出力用
+	blurIkBone.Layer = 0
 
 	blurIkBone.Position = blurTailBone.Position.Copy()
 	// 移動可能, 回転可能, 操作可能, 表示枠追加, 物理後, IK
@@ -365,6 +372,7 @@ func createBlurWeightTailBone(
 	blurWeightTailBone.EnglishName = "Blur W Tail"
 	blurWeightTailBone.ParentIndex = blurRootBone.Index
 	blurWeightTailBone.IsSystem = false // システム用ではなく出力用
+	blurWeightTailBone.Layer = 0
 
 	blurWeightTailBone.Position = blurTailBone.Position.Copy()
 	// 移動可能, 回転可能, 操作可能, 表示枠追加
