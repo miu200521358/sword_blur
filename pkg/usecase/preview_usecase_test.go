@@ -225,3 +225,39 @@ func TestSave06(t *testing.T) {
 		t.Errorf("Expected blurMaterial.DrawFlag.IsDrawingBack() to be true, got false")
 	}
 }
+
+func TestSave07(t *testing.T) {
+	r := &pmx.PmxReader{}
+
+	data, err := r.ReadByFilepath("D:/MMD/MikuMikuDance_v926x64/UserFile/Model/刀剣乱舞/097_山伏国広/山伏国広ver0_57 ぴえ式/本体.pmx")
+	if err != nil {
+		t.Errorf("Expected error to be nil, got %q", err)
+	}
+	model := data.(*pmx.PmxModel)
+
+	outputPath := "D:/MMD/MikuMikuDance_v926x64/UserFile/Model/刀剣乱舞/097_山伏国広/山伏国広ver0_57 ぴえ式/本体_test"
+	blurMaterialIndexes := []int{1}
+	backVertexIndexes := []int{6, 5, 19, 18, 21, 25, 28, 31, 10, 9, 46, 45, 82, 105, 107}
+	edgeVertexIndexes := []int{35, 95, 33, 94, 34, 93, 36, 96, 37, 97, 38, 98, 39, 99, 40, 100, 41, 101, 42, 102, 43, 103, 44, 104, 45, 82, 105, 107}
+
+	outputModel, previewVmd, err := usecase.Preview(model, blurMaterialIndexes, backVertexIndexes, edgeVertexIndexes)
+	if err != nil {
+		t.Errorf("Expected error to be nil, got %q", err)
+	}
+	usecase.Save(outputModel, outputPath+".pmx")
+	previewVmd.Save("Preview", fmt.Sprintf("%s_preview.vmd", outputPath))
+
+	blurMaterial := outputModel.Materials.GetByName("_刀身_ブレ")
+	if blurMaterial == nil {
+		t.Errorf("Expected blurMaterial to be not nil, got nil")
+		return
+	}
+
+	if blurMaterial.DrawFlag.IsDrawingEdge() {
+		t.Errorf("Expected blurMaterial.DrawFlag.IsDrawingEdge() to be false, got true")
+	}
+
+	if !blurMaterial.DrawFlag.IsDoubleSidedDrawing() {
+		t.Errorf("Expected blurMaterial.DrawFlag.IsDrawingBack() to be true, got false")
+	}
+}

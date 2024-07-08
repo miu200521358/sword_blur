@@ -41,7 +41,7 @@ func createPreviewVmd(outputModel *pmx.PmxModel, blurRootBone, blurBone *pmx.Bon
 	}
 
 	mf := vmd.NewMorphFrame(0)
-	mf.Ratio = 1.0
+	mf.Ratio = 0.5
 	previewVmd.AppendRegisteredMorphFrame("ブレ_表示", mf)
 
 	return previewVmd

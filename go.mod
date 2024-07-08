@@ -2,7 +2,7 @@ module github.com/miu200521358/sword_blur
 
 go 1.22.4
 
-require github.com/miu200521358/walk v0.0.2
+require github.com/miu200521358/walk v0.0.3
 
 require (
 	github.com/go-gl/gl v0.0.0-20231021071112-07e5d0ea2e71 // indirect
