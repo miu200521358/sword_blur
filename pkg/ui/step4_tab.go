@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"slices"
-
 	"github.com/miu200521358/mlib_go/pkg/mmath"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mi18n"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mlog"
@@ -88,40 +86,14 @@ func NewStep4TabPage(mWindow *mwidget.MWindow, step3Page *Step3TabPage) (*Step4T
 
 	stp.Items.FuncWorldPos = func(worldPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas, viewMat *mmath.MMat4) {
 		if step3Page.prevStep.prevStep.Items.OriginalPmxPicker.Exists() && stp.Enabled() {
-			model := step3Page.prevStep.prevStep.Items.OriginalPmxPicker.GetCache().(*pmx.PmxModel)
-			// 直近頂点を取得
-			tempVertex := pmx.NewVertex()
-			tempVertex.Position = worldPos
-			vertexIndexes, vertexPositions := model.Vertices.GetMapValues(tempVertex)
-			if len(vertexIndexes) > 0 {
-				visibleVertexIndexes := make([]int, 0)
-				visibleVertexPositions := make([]*mmath.MVec3, 0)
-				for i, vertexIndex := range vertexIndexes {
-					for _, materialIndex := range step3Page.prevStep.Items.MaterialListBox.SelectedIndexes() {
-						// 表示されている材質からのみ直近頂点を選ぶ
-						if slices.Contains(model.Vertices.Get(vertexIndex).MaterialIndexes, materialIndex) &&
-							!slices.Contains(visibleVertexIndexes, vertexIndex) {
-							visibleVertexIndexes = append(visibleVertexIndexes, vertexIndex)
-							visibleVertexPositions = append(visibleVertexPositions, vertexPositions[i])
-							break
-						}
-					}
-				}
-				distances := mmath.Float64Slice(mmath.Distances(worldPos, visibleVertexPositions))
-				nearVertexIndexes := mmath.ArgSort(distances)
-				targetVertexIndexes := make([]int, 0)
-				for i, nearVertexIndex := range nearVertexIndexes {
-					if i == 0 || visibleVertexPositions[nearVertexIndexes[0]].NearEquals(visibleVertexPositions[nearVertexIndexes[i]], 1e-2) {
-						// 直近とほぼ同じ位置の頂点を選択
-						targetVertexIndexes = append(targetVertexIndexes, visibleVertexIndexes[nearVertexIndex])
-					}
-				}
-				stp.Items.VertexListBox.SetItem(targetVertexIndexes)
+			// 表示されている材質からのみ直近頂点を選ぶ
+			nearestVertexIndexes := vmdDeltas[0].Vertices.GetNearestVertexIndexes(
+				worldPos, step3Page.prevStep.Items.MaterialListBox.SelectedIndexes())
+			stp.Items.VertexListBox.SetItem(nearestVertexIndexes)
 
-				go func() {
-					mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextSelectedVertexIndexes: stp.Items.VertexListBox.GetItemValues()}}
-				}()
-			}
+			go func() {
+				mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextSelectedVertexIndexes: stp.Items.VertexListBox.GetItemValues()}}
+			}()
 		}
 	}
 
@@ -147,10 +119,13 @@ func NewStep4TabPage(mWindow *mwidget.MWindow, step3Page *Step3TabPage) (*Step4T
 
 				nowMaxFrame := stp.prevStep.prevStep.prevStep.Items.MotionPlayer.FrameEdit.MaxValue()
 				if previewVmd.BoneFrames.GetMaxFrame() > int(nowMaxFrame) {
-					stp.prevStep.prevStep.prevStep.Items.MotionPlayer.FrameEdit.SetRange(
-						0.0, float64(previewVmd.BoneFrames.GetMaxFrame()+1))
+					stp.prevStep.prevStep.prevStep.Items.MotionPlayer.SetRange(0, previewVmd.BoneFrames.GetMaxFrame()+1)
 				}
+				stp.mWindow.SetCheckWireDebugView(false)
+				stp.mWindow.SetCheckSelectedVertexDebugView(false)
+				stp.prevStep.prevStep.prevStep.Items.MotionPlayer.SetValue(0)
 				stp.prevStep.prevStep.prevStep.Items.MotionPlayer.Play(true)
+				stp.outputModel = outputModel
 
 				go func() {
 					mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{1: {NextModel: outputModel, NextMotion: previewVmd}}

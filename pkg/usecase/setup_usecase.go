@@ -37,6 +37,7 @@ func addMaterialMorph(model *pmx.PmxModel) {
 			&mmath.MVec4{1.0, 1.0, 1.0, 1.0},
 		)
 		morph := pmx.NewMorph()
+		morph.Index = model.Morphs.Len()
 		morph.Name = GetVisibleMorphName(material)
 		morph.Offsets = append(morph.Offsets, offset)
 		morph.MorphType = pmx.MORPH_TYPE_MATERIAL

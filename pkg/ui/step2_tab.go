@@ -86,8 +86,6 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 					return
 				}
 				model := data.(*pmx.PmxModel)
-				// 追加セットアップ
-				usecase.SetupModel(model)
 
 				var motion *vmd.VmdMotion
 				if step1Page.Items.OriginalVmdPicker.IsCached() {
@@ -95,28 +93,6 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 				} else {
 					motion = vmd.NewVmdMotion("")
 				}
-
-				step1Page.Items.MotionPlayer.SetEnabled(true)
-				step1Page.Items.MotionPlayer.SetValue(0)
-				stp.SetEnabled(true)
-				stp.Items.MaterialListBox.SetMaterials(model.Materials, func(indexes []int) {
-					invisibleMaterialIndexes := make([]int, 0)
-					for i := range model.Materials.Len() {
-						material := model.Materials.Get(i)
-						mf := vmd.NewMorphFrame(0)
-						if slices.Contains(indexes, i) {
-							mf.Ratio = 0.0
-						} else {
-							mf.Ratio = 1.0
-							invisibleMaterialIndexes = append(invisibleMaterialIndexes, i)
-						}
-						motion.AppendMorphFrame(usecase.GetVisibleMorphName(material), mf)
-					}
-
-					go func() {
-						mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextMotion: motion, NextInvisibleMaterialIndexes: invisibleMaterialIndexes}}
-					}()
-				})
 
 				go func() {
 					mWindow.GetMainGlWindow().FrameChannel <- 0
@@ -143,6 +119,7 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 			}
 			motion := motionData.(*vmd.VmdMotion)
 
+			step1Page.Items.MotionPlayer.SetEnabled(true)
 			step1Page.Items.MotionPlayer.SetRange(0, motion.GetMaxFrame()+1)
 			step1Page.Items.MotionPlayer.SetValue(0)
 
@@ -165,7 +142,39 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 	// Step1. OKボタンクリック時
 	step1Page.Items.okButton.Clicked().Attach(func() {
 		if step1Page.Items.OriginalPmxPicker.Exists() {
+			model := step1Page.Items.OriginalPmxPicker.GetCache().(*pmx.PmxModel)
+			var motion *vmd.VmdMotion
+			if step1Page.Items.OriginalVmdPicker.IsCached() {
+				motion = step1Page.Items.OriginalVmdPicker.GetCache().(*vmd.VmdMotion)
+			} else {
+				motion = vmd.NewVmdMotion("")
+			}
+
+			// 追加セットアップ
+			usecase.SetupModel(model)
+
+			step1Page.Items.MotionPlayer.SetEnabled(true)
+			step1Page.Items.MotionPlayer.SetValue(0)
 			stp.SetEnabled(true)
+			stp.Items.MaterialListBox.SetMaterials(model.Materials, func(indexes []int) {
+				invisibleMaterialIndexes := make([]int, 0)
+				for i := range model.Materials.Len() {
+					material := model.Materials.Get(i)
+					mf := vmd.NewMorphFrame(0)
+					if slices.Contains(indexes, i) {
+						mf.Ratio = 0.0
+					} else {
+						mf.Ratio = 1.0
+						invisibleMaterialIndexes = append(invisibleMaterialIndexes, i)
+					}
+					motion.AppendMorphFrame(usecase.GetVisibleMorphName(material), mf)
+				}
+
+				go func() {
+					mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextMotion: motion, NextInvisibleMaterialIndexes: invisibleMaterialIndexes}}
+				}()
+			})
+
 			stp.mWindow.TabWidget.SetCurrentIndex(1) // Step2へ移動
 			mlog.IL(mi18n.T("Step1モデル設定完了"))
 		} else {
