@@ -54,6 +54,13 @@ func NewStep4TabPage(mWindow *mwidget.MWindow, step3Page *Step3TabPage) (*Step4T
 	}
 	stp.Items.previewButton.SetText(mi18n.T("プレビュー"))
 
+	// リトライボタン
+	stp.Items.retryButton, err = walk.NewPushButton(stp.Items.composite)
+	if err != nil {
+		return nil, err
+	}
+	stp.Items.retryButton.SetText(mi18n.T("リトライ"))
+
 	// 保存ボタン
 	stp.Items.saveButton, err = walk.NewPushButton(stp.Items.composite)
 	if err != nil {
@@ -71,6 +78,8 @@ func NewStep4TabPage(mWindow *mwidget.MWindow, step3Page *Step3TabPage) (*Step4T
 			return
 		} else {
 			stp.SetEnabled(true)
+			stp.Items.retryButton.SetEnabled(false)
+			stp.Items.saveButton.SetEnabled(false)
 			stp.mWindow.SetCheckWireDebugView(true)
 			stp.mWindow.SetCheckSelectedVertexDebugView(true)
 			stp.mWindow.TabWidget.SetCurrentIndex(3)                              // Step4へ移動
@@ -114,15 +123,16 @@ func NewStep4TabPage(mWindow *mwidget.MWindow, step3Page *Step3TabPage) (*Step4T
 			if err != nil {
 				mlog.ET(mi18n.T("生成失敗"), mi18n.T("生成失敗メッセージ", map[string]interface{}{"Error": err.Error()}))
 			} else {
-				stp.Items.saveButton.SetEnabled(true)
 				mlog.IT(mi18n.T("生成成功"), mi18n.T("生成成功メッセージ"))
 
 				nowMaxFrame := stp.prevStep.prevStep.prevStep.Items.MotionPlayer.FrameEdit.MaxValue()
 				if previewVmd.BoneFrames.GetMaxFrame() > int(nowMaxFrame) {
 					stp.prevStep.prevStep.prevStep.Items.MotionPlayer.SetRange(0, previewVmd.BoneFrames.GetMaxFrame()+1)
 				}
-				// stp.mWindow.SetCheckWireDebugView(false)
-				// stp.mWindow.SetCheckSelectedVertexDebugView(false)
+				stp.Items.saveButton.SetEnabled(true)
+				stp.Items.retryButton.SetEnabled(true)
+				stp.mWindow.SetCheckWireDebugView(false)
+				stp.mWindow.SetCheckSelectedVertexDebugView(false)
 				stp.prevStep.prevStep.prevStep.Items.MotionPlayer.SetValue(0)
 				stp.prevStep.prevStep.prevStep.Items.MotionPlayer.Play(true)
 				stp.outputModel = outputModel
@@ -133,6 +143,23 @@ func NewStep4TabPage(mWindow *mwidget.MWindow, step3Page *Step3TabPage) (*Step4T
 				}()
 			}
 		}
+	})
+
+	// Step4. リトライボタンクリック時
+	stp.Items.retryButton.Clicked().Attach(func() {
+		stp.mWindow.SetCheckWireDebugView(true)
+		stp.mWindow.SetCheckSelectedVertexDebugView(true)
+		stp.Items.retryButton.SetEnabled(false)
+		stp.Items.saveButton.SetEnabled(false)
+		stp.prevStep.prevStep.prevStep.Items.MotionPlayer.SetValue(0)
+		stp.prevStep.prevStep.prevStep.Items.MotionPlayer.SetRange(0, 1)
+		stp.prevStep.prevStep.prevStep.Items.MotionPlayer.Play(true)
+		stp.outputModel = nil
+
+		go func() {
+			mWindow.GetMainGlWindow().RemoveModelSetIndexChannel <- 1
+			mWindow.GetMainGlWindow().IsPlayingChannel <- false
+		}()
 	})
 
 	stp.Items.saveButton.Clicked().Attach(func() {
@@ -169,6 +196,7 @@ type Step4Items struct {
 	stepItems
 	VertexListBox *VertexListBox
 	previewButton *walk.PushButton
+	retryButton   *walk.PushButton
 	saveButton    *walk.PushButton
 	FuncWorldPos  func(worldPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas, viewMat *mmath.MMat4)
 }
@@ -177,6 +205,7 @@ func (si *Step4Items) SetEnabled(enabled bool) {
 	si.stepItems.SetEnabled(enabled)
 	si.VertexListBox.SetEnabled(enabled)
 	si.previewButton.SetEnabled(enabled)
+	si.retryButton.SetEnabled(enabled)
 	si.saveButton.SetEnabled(enabled)
 }
 
@@ -184,5 +213,6 @@ func (si *Step4Items) Dispose() {
 	si.stepItems.Dispose()
 	si.VertexListBox.Dispose()
 	si.previewButton.Dispose()
+	si.retryButton.Dispose()
 	si.saveButton.Dispose()
 }

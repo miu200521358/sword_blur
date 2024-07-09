@@ -121,9 +121,6 @@ func createModel(
 	// ジョイント
 	createJoint(model, blurBone, blurRootRigidBody, blurRigidBody, rootVector, backVector)
 
-	// モデル再セットアップ
-	model.Setup()
-
 	return model, blurRootBone, blurBone
 }
 
