@@ -14,6 +14,7 @@ import (
 	"github.com/miu200521358/mlib_go/pkg/mutils/mconfig"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mi18n"
 	"github.com/miu200521358/mlib_go/pkg/mwidget"
+	"github.com/miu200521358/sword_blur/pkg/model"
 	"github.com/miu200521358/sword_blur/pkg/ui"
 )
 
@@ -57,29 +58,33 @@ func main() {
 		mWindow, err = mwidget.NewMWindow(512, 768, ui.GetMenuItems, iconImg, appConfig, true)
 		mwidget.CheckError(err, nil, mi18n.T("メインウィンドウ生成エラー"))
 
+		blurModel := model.NewBlurModel()
+
 		step1Page, err := ui.NewStep1TabPage(mWindow)
 		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
 
-		step2Page, err := ui.NewStep2TabPage(mWindow, step1Page)
+		step2Page, err := ui.NewStep2TabPage(mWindow, step1Page, blurModel)
 		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
 
-		step3Page, err := ui.NewStep3TabPage(mWindow, step2Page)
+		step3Page, err := ui.NewStep3TabPage(mWindow, step2Page, blurModel)
 		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
 
-		step4Page, err := ui.NewStep4TabPage(mWindow, step3Page)
+		step4Page, err := ui.NewStep4TabPage(mWindow, step3Page, blurModel)
 		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
 
-		step5Page, err := ui.NewStep5TabPage(mWindow, step4Page)
+		step5Page, err := ui.NewStep5TabPage(mWindow, step4Page, blurModel)
 		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
 
 		// 関数紐付け切り替え
 		mWindow.TabWidget.CurrentIndexChanged().Attach(func() {
 			if mWindow.TabWidget.CurrentIndex() == 2 {
-				mWindow.GetMainGlWindow().SetFuncWorldPos(step3Page.Items.FuncWorldPos)
+				mWindow.GetMainGlWindow().SetFuncWorldPos(step3Page.FuncWorldPos(blurModel))
 			} else if mWindow.TabWidget.CurrentIndex() == 3 {
-				mWindow.GetMainGlWindow().SetFuncWorldPos(step4Page.Items.FuncWorldPos)
+				mWindow.GetMainGlWindow().SetFuncWorldPos(step4Page.FuncWorldPos(blurModel))
 			} else if mWindow.TabWidget.CurrentIndex() == 4 {
-				mWindow.GetMainGlWindow().SetFuncWorldPos(step5Page.Items.FuncWorldPos)
+				mWindow.GetMainGlWindow().SetFuncWorldPos(step5Page.FuncWorldPos(blurModel))
+			} else {
+				mWindow.GetMainGlWindow().SetFuncWorldPos(nil)
 			}
 		})
 
@@ -98,6 +103,8 @@ func main() {
 			}()
 			mWindow.Close()
 		})
+
+		step2Page.SetEnabled(false)
 
 		mWindow.Center()
 		mWindow.Run()

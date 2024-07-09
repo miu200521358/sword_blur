@@ -1,7 +1,19 @@
 package usecase
 
-import "github.com/miu200521358/mlib_go/pkg/pmx"
+import (
+	"github.com/miu200521358/sword_blur/pkg/model"
+)
 
-func Save(model *pmx.PmxModel, outputPath string) error {
-	return model.Save(false, outputPath)
+func Save(blurModel *model.BlurModel) error {
+	err := blurModel.OutputModel.Save(false, "")
+	if err != nil {
+		return err
+	}
+
+	err = blurModel.OutputMotion.Save("Blur Preview", "")
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

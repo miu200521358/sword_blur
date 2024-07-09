@@ -2,14 +2,18 @@ package ui
 
 import (
 	"github.com/miu200521358/mlib_go/pkg/mmath"
+	"github.com/miu200521358/mlib_go/pkg/mutils"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mi18n"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mlog"
 	"github.com/miu200521358/mlib_go/pkg/mwidget"
 	"github.com/miu200521358/mlib_go/pkg/vmd"
+	"github.com/miu200521358/sword_blur/pkg/model"
 	"github.com/miu200521358/walk/pkg/walk"
 )
 
-func NewStep3TabPage(mWindow *mwidget.MWindow, step2Page *Step2TabPage) (*Step3TabPage, error) {
+func NewStep3TabPage(
+	mWindow *mwidget.MWindow, step2Page *Step2TabPage, blurModel *model.BlurModel,
+) (*Step3TabPage, error) {
 	page, err := mwidget.NewMTabPage(mWindow, mWindow.TabWidget, "Step. 3")
 	if err != nil {
 		return nil, err
@@ -22,6 +26,7 @@ func NewStep3TabPage(mWindow *mwidget.MWindow, step2Page *Step2TabPage) (*Step3T
 		prevStep: step2Page,
 		Items:    &Step3Items{},
 	}
+	step2Page.nextStep = stp
 
 	// Step3. 峰手元選択
 
@@ -52,41 +57,10 @@ func NewStep3TabPage(mWindow *mwidget.MWindow, step2Page *Step2TabPage) (*Step3T
 	}
 	stp.Items.okButton.SetText(mi18n.T("次へ進む"))
 
-	stp.SetEnabled(false)
-
 	// Step2. OKボタンクリック時
 	step2Page.Items.okButton.Clicked().Attach(func() {
-		if len(step2Page.Items.MaterialListBox.SelectedIndexes()) == 0 {
-			stp.SetEnabled(false)
-			mlog.IL(mi18n.T("Step2失敗"))
-			return
-		} else {
-			stp.SetEnabled(true)
-			stp.mWindow.SetCheckWireDebugView(true)
-			stp.mWindow.SetCheckSelectedVertexDebugView(true)
-			stp.mWindow.TabWidget.SetCurrentIndex(2)                              // Step3へ移動
-			stp.mWindow.GetMainGlWindow().SetFuncWorldPos(stp.Items.FuncWorldPos) // 頂点選択時のターゲットfunction変更
-
-			go func() {
-				mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextSelectedVertexIndexes: []int{}}}
-			}()
-
-			mlog.IL(mi18n.T("Step2成功"))
-		}
+		step2Page.funcOkButton(blurModel)
 	})
-
-	stp.Items.FuncWorldPos = func(worldPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas, viewMat *mmath.MMat4) {
-		if step2Page.prevStep.Items.OriginalPmxPicker.Exists() && stp.Enabled() {
-			// 表示されている材質からのみ直近頂点を選ぶ
-			nearestVertexIndexes := vmdDeltas[0].Vertices.GetNearestVertexIndexes(
-				worldPos, step2Page.Items.MaterialListBox.SelectedIndexes())
-			stp.Items.VertexListBox.SetItem(nearestVertexIndexes)
-
-			go func() {
-				mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextSelectedVertexIndexes: stp.Items.VertexListBox.GetItemValues()}}
-			}()
-		}
-	}
 
 	return stp, nil
 }
@@ -97,7 +71,60 @@ type Step3TabPage struct {
 	*mwidget.MTabPage
 	mWindow  *mwidget.MWindow
 	prevStep *Step2TabPage
+	nextStep *Step4TabPage
 	Items    *Step3Items
+}
+
+// Step3. OKボタンクリック時
+func (step3Page *Step3TabPage) funcOkButton(blurModel *model.BlurModel) {
+	if len(step3Page.Items.VertexListBox.GetItemValues()) == 0 {
+		step3Page.nextStep.SetEnabled(false)
+		mlog.ILT(mi18n.T("設定失敗"), mi18n.T("Step3失敗"))
+		return
+	} else {
+		blurModel.BackRootVertexIndexes = step3Page.Items.VertexListBox.GetItemValues()
+		blurModel.OutputModel = nil
+		blurModel.OutputMotion = nil
+
+		step3Page.nextStep.SetEnabled(true)
+		step3Page.mWindow.SetCheckWireDebugView(true)
+		step3Page.mWindow.SetCheckSelectedVertexDebugView(true)
+		step3Page.mWindow.TabWidget.SetCurrentIndex(3)                                                  // Step4へ移動
+		step3Page.mWindow.GetMainGlWindow().SetFuncWorldPos(step3Page.nextStep.FuncWorldPos(blurModel)) // 頂点選択時のターゲットfunction変更
+
+		go func() {
+			step3Page.mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextSelectedVertexIndexes: []int{}}}
+		}()
+
+		mlog.IL(mi18n.T("Step3成功"))
+	}
+}
+
+// Step3. マウスカーソル位置の頂点選択
+func (stp Step3TabPage) FuncWorldPos(
+	blurModel *model.BlurModel,
+) func(worldPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas, viewMat *mmath.MMat4) {
+	return func(worldPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas, viewMat *mmath.MMat4) {
+		if !stp.Enabled() {
+			return
+		}
+		if ok, _ := mutils.ExistsFile(blurModel.Model.GetPath()); ok {
+			// 表示されている材質からのみ直近頂点を選ぶ
+			nearestVertexIndexes := vmdDeltas[0].Vertices.GetNearestVertexIndexes(
+				worldPos, blurModel.BlurMaterialIndexes)
+			stp.Items.VertexListBox.SetItem(nearestVertexIndexes)
+
+			go func() {
+				stp.mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextSelectedVertexIndexes: stp.Items.VertexListBox.GetItemValues()}}
+			}()
+		}
+	}
+}
+
+func (stp *Step3TabPage) SetEnabled(enabled bool) {
+	stp.MTabPage.SetEnabled(enabled)
+	stp.Items.SetEnabled(enabled)
+	stp.nextStep.SetEnabled(enabled)
 }
 
 // ------------------------------
@@ -106,7 +133,6 @@ type Step3Items struct {
 	stepItems
 	VertexListBox *VertexListBox
 	okButton      *walk.PushButton
-	FuncWorldPos  func(worldPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas, viewMat *mmath.MMat4)
 }
 
 func (si *Step3Items) SetEnabled(enabled bool) {

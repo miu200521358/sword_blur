@@ -2,25 +2,34 @@ package usecase
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/miu200521358/mlib_go/pkg/mmath"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mlog"
 	"github.com/miu200521358/mlib_go/pkg/pmx"
 	"github.com/miu200521358/mlib_go/pkg/vmd"
+	"github.com/miu200521358/sword_blur/pkg/model"
 )
 
 // ブレ設定入りモデル出力処理
-func Preview(
-	model *pmx.PmxModel, blurMaterialIndexes []int, backRootVertexIndexes []int, edgeTailVertexIndexes []int, edgeVertexIndexes []int,
-) (*pmx.PmxModel, *vmd.VmdMotion, error) {
-	outputModel, blurRootBone, blurBone := createModel(model, blurMaterialIndexes, backRootVertexIndexes, edgeTailVertexIndexes, edgeVertexIndexes)
+func Preview(blurModel *model.BlurModel) error {
+	outputModel, blurRootBone, blurBone := createModel(blurModel.Model, blurModel.BlurMaterialIndexes, blurModel.BackRootVertexIndexes, blurModel.EdgeTailVertexIndexes, blurModel.EdgeVertexIndexes)
+	outputModel.SetPath(blurModel.OutputModelPath)
 	previewVmd := createPreviewVmd(outputModel, blurRootBone, blurBone)
 
-	return outputModel, previewVmd, nil
+	blurModel.OutputModel = outputModel
+	blurModel.OutputMotion = previewVmd
+
+	return nil
 }
 
 func createPreviewVmd(outputModel *pmx.PmxModel, blurRootBone, blurBone *pmx.Bone) *vmd.VmdMotion {
-	previewVmd := vmd.NewVmdMotion("")
+	// 出力パス設定
+	dir, file := filepath.Split(outputModel.Path)
+	ext := filepath.Ext(file)
+	fileName := fmt.Sprintf("%s_preview.vmd", file[:len(file)-len(ext)])
+	outputPath := filepath.Join(dir, fileName)
+	previewVmd := vmd.NewVmdMotion(outputPath)
 
 	// 回すボーンはブレ根元の親
 	parentBone := outputModel.Bones.Get(blurRootBone.ParentIndex)

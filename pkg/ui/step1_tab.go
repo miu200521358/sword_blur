@@ -1,8 +1,18 @@
 package ui
 
 import (
+	"fmt"
+	"path/filepath"
+	"time"
+
+	"github.com/miu200521358/mlib_go/pkg/mutils"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mi18n"
+	"github.com/miu200521358/mlib_go/pkg/mutils/mlog"
 	"github.com/miu200521358/mlib_go/pkg/mwidget"
+	"github.com/miu200521358/mlib_go/pkg/pmx"
+	"github.com/miu200521358/mlib_go/pkg/vmd"
+	"github.com/miu200521358/sword_blur/pkg/model"
+	"github.com/miu200521358/sword_blur/pkg/usecase"
 	"github.com/miu200521358/walk/pkg/walk"
 )
 
@@ -106,7 +116,14 @@ func NewStep1TabPage(mWindow *mwidget.MWindow) (*Step1TabPage, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	stp.Items.okButton.SetText(mi18n.T("次へ進む"))
+
+	// 元モデル設定時
+	stp.Items.OriginalPmxPicker.OnPathChanged = stp.funcOriginalPmxModelChanged()
+
+	// モーション設定時
+	stp.Items.OriginalVmdPicker.OnPathChanged = stp.funcOriginalVmdModelChanged()
 
 	return stp, nil
 }
@@ -115,8 +132,129 @@ func NewStep1TabPage(mWindow *mwidget.MWindow) (*Step1TabPage, error) {
 
 type Step1TabPage struct {
 	*mwidget.MTabPage
-	mWindow *mwidget.MWindow
-	Items   *Step1Items
+	mWindow  *mwidget.MWindow
+	Items    *Step1Items
+	nextStep *Step2TabPage
+}
+
+// Step1. OKボタンクリック時
+func (step1Page Step1TabPage) funcOkButton(blurModel *model.BlurModel) {
+	if step1Page.Items.OriginalPmxPicker.Exists() {
+		model := step1Page.Items.OriginalPmxPicker.GetCache().(*pmx.PmxModel)
+		var motion *vmd.VmdMotion
+		if step1Page.Items.OriginalVmdPicker.IsCached() {
+			motion = step1Page.Items.OriginalVmdPicker.GetCache().(*vmd.VmdMotion)
+		} else {
+			motion = vmd.NewVmdMotion("")
+		}
+
+		blurModel.Model = model
+		blurModel.Motion = motion
+		blurModel.OutputModelPath = step1Page.Items.OutputPmxPicker.GetPath()
+		blurModel.OutputModel = nil
+		blurModel.OutputMotion = nil
+
+		// 追加セットアップ
+		usecase.SetupModel(blurModel)
+
+		step1Page.Items.MotionPlayer.SetEnabled(true)
+		step1Page.Items.MotionPlayer.SetValue(0)
+		step1Page.nextStep.SetEnabled(true)
+
+		// 材質リストボックス設定
+		step1Page.nextStep.Items.MaterialListBox.SetMaterials(
+			blurModel.Model.Materials,
+			step1Page.nextStep.funcMaterialListBoxChanged(blurModel))
+
+		step1Page.mWindow.TabWidget.SetCurrentIndex(1) // Step2へ移動
+		mlog.IL(mi18n.T("Step1成功"))
+	} else {
+		step1Page.nextStep.SetEnabled(false)
+		mlog.ILT(mi18n.T("設定失敗"), mi18n.T("Step1失敗"))
+		return
+	}
+}
+
+// Step1. 元モデル設定時
+func (stp Step1TabPage) funcOriginalPmxModelChanged() func(path string) {
+	return func(path string) {
+		func(path string) {
+			isExist, err := mutils.ExistsFile(path)
+			if !isExist || err != nil {
+				stp.Items.OutputPmxPicker.PathLineEdit.SetText("")
+				mlog.IL(mi18n.T("Step1失敗"))
+				return
+			}
+
+			stp.Items.OutputPmxPicker.SetEnabled(true)
+
+			// 出力パス設定
+			dir, file := filepath.Split(path)
+			ext := filepath.Ext(file)
+			fileName := fmt.Sprintf("%s_blur_%s%s", file[:len(file)-len(ext)], time.Now().Format("20060102_150405"), ext)
+			outputPath := filepath.Join(dir, fileName)
+			stp.Items.OutputPmxPicker.PathLineEdit.SetText(outputPath)
+
+			if stp.Items.OriginalPmxPicker.Exists() {
+				data, err := stp.Items.OriginalPmxPicker.GetData()
+				if err != nil {
+					mlog.E(mi18n.T("Pmxファイル読み込みエラー"), err.Error())
+					mlog.IL(mi18n.T("Step1失敗"))
+					return
+				}
+				model := data.(*pmx.PmxModel)
+
+				var motion *vmd.VmdMotion
+				if stp.Items.OriginalVmdPicker.IsCached() {
+					motion = stp.Items.OriginalVmdPicker.GetCache().(*vmd.VmdMotion)
+				} else {
+					motion = vmd.NewVmdMotion("")
+				}
+
+				go func() {
+					stp.mWindow.GetMainGlWindow().FrameChannel <- 0
+					stp.mWindow.GetMainGlWindow().IsPlayingChannel <- false
+					stp.mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextModel: model, NextMotion: motion}}
+				}()
+
+			} else {
+				go func() {
+					stp.mWindow.GetMainGlWindow().RemoveModelSetIndexChannel <- 0
+				}()
+				stp.Items.MotionPlayer.SetEnabled(false)
+			}
+		}(path)
+	}
+}
+
+// Step1. モーション設定時
+func (stp *Step1TabPage) funcOriginalVmdModelChanged() func(path string) {
+	return func(path string) {
+		if stp.Items.OriginalVmdPicker.Exists() {
+			motionData, err := stp.Items.OriginalVmdPicker.GetData()
+			if err != nil {
+				mlog.E(mi18n.T("Vmdファイル読み込みエラー"), err.Error())
+				return
+			}
+			motion := motionData.(*vmd.VmdMotion)
+
+			stp.Items.MotionPlayer.SetEnabled(true)
+			stp.Items.MotionPlayer.SetRange(0, motion.GetMaxFrame()+1)
+			stp.Items.MotionPlayer.SetValue(0)
+
+			if stp.Items.OriginalPmxPicker.Exists() {
+				go func() {
+					stp.mWindow.GetMainGlWindow().FrameChannel <- 0
+					stp.mWindow.GetMainGlWindow().IsPlayingChannel <- false
+					stp.mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextMotion: motion}}
+				}()
+			} else {
+				go func() {
+					stp.mWindow.GetMainGlWindow().RemoveModelSetIndexChannel <- 0
+				}()
+			}
+		}
+	}
 }
 
 // ------------------------------

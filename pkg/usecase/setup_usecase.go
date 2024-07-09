@@ -5,12 +5,13 @@ import (
 
 	"github.com/miu200521358/mlib_go/pkg/mmath"
 	"github.com/miu200521358/mlib_go/pkg/pmx"
+	"github.com/miu200521358/sword_blur/pkg/model"
 )
 
 // SetupModel ツール専用セットアップ
-func SetupModel(model *pmx.PmxModel) {
+func SetupModel(blurModel *model.BlurModel) {
 	// 材質モーフ追加
-	addMaterialMorph(model)
+	addMaterialMorph(blurModel.Model)
 
 	// dir, file := filepath.Split(model.GetPath())
 	// ext := filepath.Ext(file)

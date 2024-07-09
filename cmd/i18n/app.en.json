@@ -1,38 +1,154 @@
 [
     {
         "id": "ブレ生成対象モデル(Pmx)",
-        "translation": "Blurring generation target model (Pmx)"
+        "translation": "Target Model for Blur Generation (Pmx)"
     },
     {
         "id": "ブレ生成対象モデルPmxファイルを選択してください",
-        "translation": "Please select the blurring generation target model Pmx file"
+        "translation": "Please select the target model Pmx file for blur generation"
     },
     {
         "id": "ブレ生成対象モデルの使い方",
-        "translation": "- You can set the Pmx model for which you want to add blur settings.\n- The string in the model name field can be selected."
+        "translation": "How to use the target model for blur generation:\n・You can set the Pmx model to which you want to add blur settings\n・You can select the string in the model name field"
     },
     {
         "id": "確認用モーション(Vmd/Vpd)",
-        "translation": "Motion for confirmation (Vmd/Vpd)"
+        "translation": "Motion for Confirmation (Vmd/Vpd)"
     },
     {
         "id": "確認用モーション(Vmd/Vpd)ファイルを選択してください",
-        "translation": "Please select the motion for confirmation (Vmd/Vpd) file"
+        "translation": "Please select the motion file for confirmation (Vmd/Vpd)"
     },
     {
         "id": "確認用モーションの使い方",
-        "translation": "- You can optionally set a motion Vmd or Vpd.\n- The string in the model name field within the motion can be selected."
+        "translation": "How to use the motion for confirmation:\n・You can set the motion Vmd or Vpd optionally\n・You can select the string in the model name field in the motion"
     },
     {
         "id": "出力モデル(Pmx)",
-        "translation": "Output model (Pmx)"
+        "translation": "Output Model (Pmx)"
     },
     {
         "id": "出力モデル(Pmx)ファイルパスを指定してください",
-        "translation": "Please specify the output model (Pmx) file path"
+        "translation": "Please specify the file path for the output model (Pmx)"
     },
     {
         "id": "出力モデルの使い方",
-        "translation": "- You can set the file path for the output model with blur settings.\n- The output destination is set automatically, but you can change it to any path you like."
+        "translation": "How to use the output model:\n・You can set the file path for the output model with blur settings\n・The output path is automatically set, but you can change it to any path"
+    },
+    {
+        "id": "次へ進む",
+        "translation": "Proceed to the next step"
+    },
+    {
+        "id": "保存",
+        "translation": "Save"
+    },
+    {
+        "id": "プレビュー",
+        "translation": "Preview"
+    },
+    {
+        "id": "リトライ",
+        "translation": "Cancel the preview and readjust"
+    },
+    {
+        "id": "Step1Label",
+        "translation": "Step 1:\n・Please specify the Pmx model to which you want to add blur settings\n・Motion settings are optional\n・Click the 'Proceed to the next step' button at the bottom once you have confirmed the model display"
+    },
+    {
+        "id": "Step1成功",
+        "translation": "The target model for blur settings has been successfully loaded.\nProceed to Step 2 tab"
+    },
+    {
+        "id": "Step1失敗",
+        "translation": "Failed to load the target model for blur settings.\nPlease check if the correct file path is specified"
+    },
+    {
+        "id": "Step2Label",
+        "translation": "Step 2:\n・Ensure that only the material for which you want to add blur settings is selected\n・In the case of a Japanese sword, select only the material related to the blade"
+    },
+    {
+        "id": "Step2成功",
+        "translation": "The target material for blur settings has been successfully set.\nProceed to Step 3 tab"
+    },
+    {
+        "id": "Step2失敗",
+        "translation": "No target material for blur settings has been selected.\nPlease select at least one material for which you want to add blur settings"
+    },
+    {
+        "id": "Step3Label",
+        "translation": "Step 3:\n・Select one vertex at the starting point of the ridge (mine) part of the material for which you want to add blur settings\n・In the case of a Japanese sword, this is the mune-machi\n・If there are overlapping vertices at the same location, they are displayed separated by commas\n・If you mistakenly select a vertex, select it again to deselect it"
+    },
+    {
+        "id": "Step3成功",
+        "translation": "The starting vertex of the ridge for blur settings has been successfully set.\nProceed to Step 4 tab"
+    },
+    {
+        "id": "Step3失敗",
+        "translation": "No starting vertex of the ridge for blur settings has been selected.\nPlease select one vertex at the starting point of the ridge part of the material for which you want to add blur settings"
+    },
+    {
+        "id": "Step4Label",
+        "translation": "Step 4:\n・Select one vertex at the tip of the material for which you want to add blur settings\n・If there are overlapping vertices at the same location, they are displayed separated by commas\n・If you mistakenly select a vertex, select it again to deselect it"
+    },
+    {
+        "id": "Step4成功",
+        "translation": "The tip vertex for blur settings has been successfully set.\nProceed to Step 5 tab"
+    },
+    {
+        "id": "Step4失敗",
+        "translation": "No tip vertex for blur settings has been selected.\nPlease select one vertex at the tip part of the material for which you want to add blur settings"
+    },
+    {
+        "id": "Step5Label",
+        "translation": "Step 5:\n・Select the vertices of the blade part that you want to display as blur in the material for which you want to add blur settings\n・The order of selection does not matter\n・If there are overlapping vertices at the same location, they are displayed separated by commas\n・If you mistakenly select a vertex, select it again to deselect it"
+    },
+    {
+        "id": "Step5失敗",
+        "translation": "Blade setting target vertex is not selected.\nPlease select the vertices of the blade part you want to display as blade."
+    },
+    {
+        "id": "生成失敗",
+        "translation": "Generation Failed"
+    },
+    {
+        "id": "生成成功",
+        "translation": "Generation Successful"
+    },
+    {
+        "id": "生成失敗メッセージ",
+        "translation": "Failed to generate the model with blur settings\nError message: {{.Error}}"
+    },
+    {
+        "id": "生成成功メッセージ",
+        "translation": "Successfully generated the model with blur settings\nThe preview model is rotating over the original model\n[Checkpoints]\n・Ensure the blur extends only towards the ridge side …\n　To represent momentum, the blur material is set to extend only towards the ridge side\n　(The blur material extends in the opposite direction of the downward swing)\n　Check that the blur is not extending in an odd direction\n　(Red morph is added to make the blur part more noticeable)\n・Ensure there are no missing vertices in the blur material …\n　Only the vertices on the ridge side are set to extend as blur, and the vertices on the blade side follow the main body.\n　If there are holes in the blur material, it means some necessary vertices were not selected in Step 5 of the blade vertex selection.\n　In that case, please redo from the 'Retry' button"
+    },
+    {
+        "id": "出力失敗",
+        "translation": "Output Failed"
+    },
+    {
+        "id": "出力成功",
+        "translation": "Output Successful"
+    },
+    {
+        "id": "出力失敗メッセージ",
+        "translation": "Failed to output the model with blur settings\nError message: {{.Error}}"
+    },
+    {
+        "id": "出力成功メッセージ",
+        "translation": "Successfully output the model with blur settings\nBy default, the blur material {{.Path}}"
+    },
+    {
+        "id": "出力モデルなし",
+        "translation": "No Output Model"
+    },
+    {
+        "id": "出力モデルなしメッセージ",
+        "translation": "No model with blur settings available for output.\nPlease redo the preview"
+    },
+    {
+        "id": "設定失敗",
+        "translation": "Setting failed"
     }
 ]
