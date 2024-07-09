@@ -23,7 +23,7 @@ func NewStep3TabPage(mWindow *mwidget.MWindow, step2Page *Step2TabPage) (*Step3T
 		Items:    &Step3Items{},
 	}
 
-	// Step3. 峰選択
+	// Step3. 峰手元選択
 
 	stp.Items.composite, err = walk.NewComposite(stp)
 	if err != nil {
@@ -39,7 +39,7 @@ func NewStep3TabPage(mWindow *mwidget.MWindow, step2Page *Step2TabPage) (*Step3T
 
 	walk.NewVSeparator(stp.Items.composite)
 
-	// 材質選択リストボックス
+	// 頂点選択リストボックス
 	stp.Items.VertexListBox, err = NewVertexListBox(stp.Items.composite)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func NewStep3TabPage(mWindow *mwidget.MWindow, step2Page *Step2TabPage) (*Step3T
 	step2Page.Items.okButton.Clicked().Attach(func() {
 		if len(step2Page.Items.MaterialListBox.SelectedIndexes()) == 0 {
 			stp.SetEnabled(false)
-			mlog.IL(mi18n.T("Step2材質設定失敗"))
+			mlog.IL(mi18n.T("Step2失敗"))
 			return
 		} else {
 			stp.SetEnabled(true)
@@ -71,7 +71,7 @@ func NewStep3TabPage(mWindow *mwidget.MWindow, step2Page *Step2TabPage) (*Step3T
 				mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextSelectedVertexIndexes: []int{}}}
 			}()
 
-			mlog.IL(mi18n.T("Step2材質設定完了"))
+			mlog.IL(mi18n.T("Step2成功"))
 		}
 	})
 

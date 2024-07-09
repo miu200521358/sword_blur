@@ -69,12 +69,17 @@ func main() {
 		step4Page, err := ui.NewStep4TabPage(mWindow, step3Page)
 		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
 
+		step5Page, err := ui.NewStep5TabPage(mWindow, step4Page)
+		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
+
 		// 関数紐付け切り替え
 		mWindow.TabWidget.CurrentIndexChanged().Attach(func() {
 			if mWindow.TabWidget.CurrentIndex() == 2 {
 				mWindow.GetMainGlWindow().SetFuncWorldPos(step3Page.Items.FuncWorldPos)
 			} else if mWindow.TabWidget.CurrentIndex() == 3 {
 				mWindow.GetMainGlWindow().SetFuncWorldPos(step4Page.Items.FuncWorldPos)
+			} else if mWindow.TabWidget.CurrentIndex() == 4 {
+				mWindow.GetMainGlWindow().SetFuncWorldPos(step5Page.Items.FuncWorldPos)
 			}
 		})
 

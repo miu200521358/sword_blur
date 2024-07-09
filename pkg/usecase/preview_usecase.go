@@ -11,9 +11,9 @@ import (
 
 // ブレ設定入りモデル出力処理
 func Preview(
-	model *pmx.PmxModel, blurMaterialIndexes []int, backVertexIndexes []int, edgeVertexIndexes []int,
+	model *pmx.PmxModel, blurMaterialIndexes []int, backRootVertexIndexes []int, edgeTailVertexIndexes []int, edgeVertexIndexes []int,
 ) (*pmx.PmxModel, *vmd.VmdMotion, error) {
-	outputModel, blurRootBone, blurBone := createModel(model, blurMaterialIndexes, backVertexIndexes, edgeVertexIndexes)
+	outputModel, blurRootBone, blurBone := createModel(model, blurMaterialIndexes, backRootVertexIndexes, edgeTailVertexIndexes, edgeVertexIndexes)
 	previewVmd := createPreviewVmd(outputModel, blurRootBone, blurBone)
 
 	return outputModel, previewVmd, nil
@@ -40,29 +40,45 @@ func createPreviewVmd(outputModel *pmx.PmxModel, blurRootBone, blurBone *pmx.Bon
 		}
 	}
 
-	mf := vmd.NewMorphFrame(0)
-	mf.Ratio = 0.5
-	previewVmd.AppendRegisteredMorphFrame("ブレ_表示", mf)
+	{
+		mf := vmd.NewMorphFrame(0)
+		mf.Ratio = 0.5
+		previewVmd.AppendRegisteredMorphFrame("ブレ_表示", mf)
+	}
+
+	{
+		mf := vmd.NewMorphFrame(0)
+		mf.Ratio = 1.0
+		previewVmd.AppendRegisteredMorphFrame("ブレ_赤", mf)
+	}
 
 	return previewVmd
 }
 
 func createModel(
-	model *pmx.PmxModel, blurMaterialIndexes []int, backVertexIndexes []int, edgeVertexIndexes []int,
+	model *pmx.PmxModel, blurMaterialIndexes []int,
+	backRootVertexIndexes, edgeTailVertexIndexes, edgeVertexIndexes []int,
 ) (*pmx.PmxModel, *pmx.Bone, *pmx.Bone) {
 	// 表示枠の追加
 	blurDisplaySlot := createBlurDisplaySlot(model)
 
-	backRootVertex := model.Vertices.Get(backVertexIndexes[0])
-	edgeRootVertex := model.Vertices.Get(edgeVertexIndexes[0])
+	backRootVertex := model.Vertices.Get(backRootVertexIndexes[0])
+	edgeTailVertex := model.Vertices.Get(edgeTailVertexIndexes[len(edgeTailVertexIndexes)-1])
 
-	backTailVertex := model.Vertices.Get(backVertexIndexes[len(backVertexIndexes)-1])
-	edgeTailVertex := model.Vertices.Get(edgeVertexIndexes[len(edgeVertexIndexes)-1])
+	// 刃の根元は刃頂点のうち、峰根元に最も近い頂点
+	edgePositions := make([]*mmath.MVec3, len(edgeVertexIndexes))
+	for i, edgeVertexIndex := range edgeVertexIndexes {
+		edgePositions[i] = model.Vertices.Get(edgeVertexIndex).Position
+	}
+	distances := mmath.Distances(backRootVertex.Position, edgePositions)
+	minDistanceIndex := mmath.ArgMin(distances)
+	edgeRootIndex := edgeVertexIndexes[minDistanceIndex]
+	edgeRootVertex := model.Vertices.Get(edgeRootIndex)
 
 	rootVector := edgeRootVertex.Position.Subed(backRootVertex.Position).Normalize()
-	backVector := backTailVertex.Position.Subed(backRootVertex.Position).Normalize()
 	rootPosition := backRootVertex.Position.Added(edgeRootVertex.Position).MuledScalar(0.5)
-	tailPosition := backTailVertex.Position.Added(edgeTailVertex.Position).MuledScalar(0.5)
+	tailPosition := edgeTailVertex.Position.Copy()
+	edgeVector := tailPosition.Subed(rootPosition).Normalize()
 
 	// ボーンの追加
 	blurRootBone := createBlurRootBone(model, blurDisplaySlot, backRootVertex, rootPosition)
@@ -82,8 +98,8 @@ func createModel(
 		m := model.Materials.Get(materialIndex)
 		blurName := fmt.Sprintf("%s_ブレ", m.Name)
 		blurEnglishName := fmt.Sprintf("%s_blur", m.EnglishName)
-		duplicateMaterial(model, materialIndex, blurName, blurEnglishName,
-			[]int{blurWeightBone.Index}, blurWeightTailBone.Index, edgeVertexIndexes)
+		duplicateMaterial(model, materialIndex, blurName, blurEnglishName, edgeVector,
+			blurWeightBone, blurWeightTailBone.Index, append(edgeTailVertexIndexes, edgeVertexIndexes...))
 
 		// ブレ材質の設定
 		blurMaterial := model.Materials.GetByName(blurName)
@@ -116,18 +132,18 @@ func createModel(
 
 	// 剛体
 	blurRootRigidBody := createBlurRootRigidBody(model, blurRootBone)
-	blurRigidBody := createBlurRigidBody(model, blurBone, backVertexIndexes, edgeVertexIndexes)
+	blurRigidBody := createBlurRigidBody(model, blurBone, rootPosition, tailPosition)
 
 	// ジョイント
-	createJoint(model, blurBone, blurRootRigidBody, blurRigidBody, rootVector, backVector)
+	createJoint(model, blurBone, blurRootRigidBody, blurRigidBody)
 
 	return model, blurRootBone, blurBone
 }
 
 // DuplicateMaterial は指定された材質を複製します。
 func duplicateMaterial(
-	model *pmx.PmxModel, materialIndex int, materialName, materialEnglishName string,
-	weightBoneIndexes []int, weightTailBoneIndex int, edgeVertexIndexes []int,
+	model *pmx.PmxModel, materialIndex int, materialName, materialEnglishName string, edgeVector *mmath.MVec3,
+	weightBone *pmx.Bone, weightTailBoneIndex int, edgeVertexIndexes []int,
 ) error {
 	material := model.Materials.Get(materialIndex)
 	duplicatedMaterial := material.Copy().(*pmx.Material)
@@ -159,10 +175,14 @@ func duplicateMaterial(
 					// 刃側の頂点ウェイトはW先
 					duplicatedVertex.Deform = pmx.NewBdef1(weightTailBoneIndex)
 					duplicatedVertex.DeformType = pmx.BDEF1
-				} else if len(weightBoneIndexes) > 0 {
-					// ウェイトボーンが指定されている場合、ウェイトボーンのインデックスを更新
-					duplicatedVertex.Deform = pmx.NewBdef1(weightBoneIndexes[0])
-					duplicatedVertex.DeformType = pmx.BDEF1
+				} else {
+					dot := edgeVector.Dot(originalVertex.Position.Subed(weightBone.Position).Normalized())
+					if dot > 0 {
+						// 根元から切っ先の方向に向かう頂点のウェイトはW
+						duplicatedVertex.Deform = pmx.NewBdef1(weightBone.Index)
+						duplicatedVertex.DeformType = pmx.BDEF1
+					}
+					// それ以外の頂点は元のウェイトを維持
 				}
 
 				model.Vertices.Append(duplicatedVertex)
@@ -239,7 +259,7 @@ func createBlurBone(
 		pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_BONE, DisplayIndex: blurBone.Index})
 
 	// 軸制限(先端から根元までのベクトルの外積を軸にする)
-	blurBone.FixedAxis = tailPosition.Sub(rootPosition).Normalized().Cross(rootVector)
+	blurBone.FixedAxis = tailPosition.Subed(rootPosition).Normalized().Cross(rootVector)
 
 	model.Bones.Append(blurBone)
 
@@ -431,7 +451,7 @@ func createTextureMorph(
 		offset := pmx.NewMaterialMorphOffset(
 			blurMaterial.Index,
 			pmx.CALC_MODE_ADDITION,
-			&mmath.MVec4{0.0, 0.0, 0.0, 0.0},
+			textureFactor,
 			&mmath.MVec4{0.0, 0.0, 0.0, 0.0},
 			&mmath.MVec3{0.0, 0.0, 0.0},
 			&mmath.MVec4{0.0, 0.0, 0.0, 0.0},
@@ -515,7 +535,7 @@ func createBlurRootRigidBody(model *pmx.PmxModel, blurRootBone *pmx.Bone) *pmx.R
 }
 
 func createBlurRigidBody(
-	model *pmx.PmxModel, blurBone *pmx.Bone, backVertexIndexes []int, edgeVertexIndexes []int,
+	model *pmx.PmxModel, blurBone *pmx.Bone, rootPosition, tailPosition *mmath.MVec3,
 ) *pmx.RigidBody {
 	blurRigidBody := pmx.NewRigidBody()
 	blurRigidBody.IsSystem = false
@@ -528,21 +548,12 @@ func createBlurRigidBody(
 	blurRigidBody.ShapeType = pmx.SHAPE_BOX              // 箱剛体
 	blurRigidBody.PhysicsType = pmx.PHYSICS_TYPE_DYNAMIC // 物理
 
-	backRootVertex := model.Vertices.Get(backVertexIndexes[0])
-	edgeRootVertex := model.Vertices.Get(edgeVertexIndexes[0])
-
-	backTailVertex := model.Vertices.Get(backVertexIndexes[len(backVertexIndexes)-1])
-	edgeTailVertex := model.Vertices.Get(edgeVertexIndexes[len(edgeVertexIndexes)-1])
-
-	rootPosition := backRootVertex.Position.Added(edgeRootVertex.Position).MuledScalar(0.5)
-	tailPosition := backTailVertex.Position.Added(edgeTailVertex.Position).MuledScalar(0.5)
-
 	blurRigidBody.Size = &mmath.MVec3{0.5, 0.5, rootPosition.Distance(tailPosition) * 0.5}
 	// 選択の頂点位置の中間
 	blurRigidBody.Position = rootPosition.Added(tailPosition).MuledScalar(0.5)
 	// 選択の頂点位置の方向
 	blurRigidBody.Rotation.SetQuaternion(
-		mmath.NewMQuaternionFromDirection(tailPosition.Sub(rootPosition), mmath.MVec3UnitY).Shorten())
+		mmath.NewMQuaternionFromDirection(tailPosition.Subed(rootPosition), mmath.MVec3UnitY).Shorten())
 
 	blurRigidBody.RigidBodyParam = pmx.NewRigidBodyParam()
 	blurRigidBody.RigidBodyParam.Mass = 5.0
@@ -558,7 +569,6 @@ func createBlurRigidBody(
 
 func createJoint(
 	model *pmx.PmxModel, blurBone *pmx.Bone, blurRootRigidBody, blurRigidBody *pmx.RigidBody,
-	rootVector, backVector *mmath.MVec3,
 ) {
 	joint := pmx.NewJoint()
 	joint.Index = model.Joints.Len()

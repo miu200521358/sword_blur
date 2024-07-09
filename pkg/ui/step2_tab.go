@@ -65,7 +65,7 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 			isExist, err := mutils.ExistsFile(path)
 			if !isExist || err != nil {
 				step1Page.Items.OutputPmxPicker.PathLineEdit.SetText("")
-				mlog.IL(mi18n.T("Step1モデル設定失敗"))
+				mlog.IL(mi18n.T("Step1失敗"))
 				return
 			}
 
@@ -82,7 +82,7 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 				data, err := step1Page.Items.OriginalPmxPicker.GetData()
 				if err != nil {
 					mlog.E(mi18n.T("Pmxファイル読み込みエラー"), err.Error())
-					mlog.IL(mi18n.T("Step1モデル設定失敗"))
+					mlog.IL(mi18n.T("Step1失敗"))
 					return
 				}
 				model := data.(*pmx.PmxModel)
@@ -176,10 +176,10 @@ func NewStep2TabPage(mWindow *mwidget.MWindow, step1Page *Step1TabPage) (*Step2T
 			})
 
 			stp.mWindow.TabWidget.SetCurrentIndex(1) // Step2へ移動
-			mlog.IL(mi18n.T("Step1モデル設定完了"))
+			mlog.IL(mi18n.T("Step1成功"))
 		} else {
 			stp.SetEnabled(false)
-			mlog.IL(mi18n.T("Step1モデル設定失敗"))
+			mlog.IL(mi18n.T("Step1失敗"))
 			return
 		}
 	})
