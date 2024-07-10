@@ -26,7 +26,7 @@ func TestSave01(t *testing.T) {
 		60, 1750, 57, 1749, 51, 1747, 43, 1745, 35, 1743, 29, 1742, 22, 1740, 13, 1738, 5, 1735, 0, 1734}
 
 	blurModel := &model.BlurModel{
-		Model:                 originalModel,
+		OutputModel:           originalModel,
 		BlurMaterialIndexes:   blurMaterialIndexes,
 		BackRootVertexIndexes: backRootVertexIndexes,
 		EdgeTailVertexIndexes: edgeTailVertexIndexes,
@@ -41,7 +41,7 @@ func TestSave01(t *testing.T) {
 	blurModel.OutputMotion.SetPath(fmt.Sprintf("%s_preview.vmd", outputPath))
 	usecase.Save(blurModel)
 
-	blurMaterial := blurModel.OutputModel.Materials.GetByName("_刀身_ブレ")
+	blurMaterial := blurModel.OutputModel.Materials.GetByName("頭身_ブレ")
 	if blurMaterial == nil {
 		t.Errorf("Expected blurMaterial to be not nil, got nil")
 		return
@@ -72,7 +72,7 @@ func TestSave02(t *testing.T) {
 	edgeVertexIndexes := []int{146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 197}
 
 	blurModel := &model.BlurModel{
-		Model:                 originalModel,
+		OutputModel:           originalModel,
 		BlurMaterialIndexes:   blurMaterialIndexes,
 		BackRootVertexIndexes: backRootVertexIndexes,
 		EdgeTailVertexIndexes: edgeTailVertexIndexes,
@@ -87,7 +87,7 @@ func TestSave02(t *testing.T) {
 	blurModel.OutputMotion.SetPath(fmt.Sprintf("%s_preview.vmd", outputPath))
 	usecase.Save(blurModel)
 
-	blurMaterial := blurModel.OutputModel.Materials.GetByName("_刀身_ブレ")
+	blurMaterial := blurModel.OutputModel.Materials.GetByName("刀身_ブレ")
 	if blurMaterial == nil {
 		t.Errorf("Expected blurMaterial to be not nil, got nil")
 		return
@@ -118,7 +118,7 @@ func TestSave03(t *testing.T) {
 	edgeVertexIndexes := []int{947, 984, 1027, 1419, 1421, 1424, 946, 1420, 1026, 1450, 1076, 1453, 1077, 1454, 941, 1455, 940, 1456, 832, 1390, 831, 1389, 937, 1459, 936, 1460, 935, 134, 933, 1111, 1112, 1116, 1132, 1128, 1122, 1126, 1127, 1186, 1463, 1466}
 
 	blurModel := &model.BlurModel{
-		Model:                 originalModel,
+		OutputModel:           originalModel,
 		BlurMaterialIndexes:   blurMaterialIndexes,
 		BackRootVertexIndexes: backRootVertexIndexes,
 		EdgeTailVertexIndexes: edgeTailVertexIndexes,
@@ -133,7 +133,7 @@ func TestSave03(t *testing.T) {
 	blurModel.OutputMotion.SetPath(fmt.Sprintf("%s_preview.vmd", outputPath))
 	usecase.Save(blurModel)
 
-	blurMaterial := blurModel.OutputModel.Materials.GetByName("_刀身_ブレ")
+	blurMaterial := blurModel.OutputModel.Materials.GetByName("刀身_ブレ")
 	if blurMaterial == nil {
 		t.Errorf("Expected blurMaterial to be not nil, got nil")
 		return
@@ -164,7 +164,7 @@ func TestSave04(t *testing.T) {
 	edgeVertexIndexes := []int{962, 1222, 959, 1219, 958, 1218, 957, 1217, 956, 1216, 955, 1215, 954, 1214, 953, 1213, 952, 1212, 951, 1211, 978, 1225, 987, 1229, 983, 1226, 984, 1227, 965, 1224, 945, 1210, 944, 1104, 1209}
 
 	blurModel := &model.BlurModel{
-		Model:                 originalModel,
+		OutputModel:           originalModel,
 		BlurMaterialIndexes:   blurMaterialIndexes,
 		BackRootVertexIndexes: backRootVertexIndexes,
 		EdgeTailVertexIndexes: edgeTailVertexIndexes,
@@ -179,7 +179,7 @@ func TestSave04(t *testing.T) {
 	blurModel.OutputMotion.SetPath(fmt.Sprintf("%s_preview.vmd", outputPath))
 	usecase.Save(blurModel)
 
-	blurMaterial := blurModel.OutputModel.Materials.GetByName("_刀身_ブレ")
+	blurMaterial := blurModel.OutputModel.Materials.GetByName("刃_ブレ")
 	if blurMaterial == nil {
 		t.Errorf("Expected blurMaterial to be not nil, got nil")
 		return
@@ -210,7 +210,7 @@ func TestSave05(t *testing.T) {
 	edgeVertexIndexes := []int{158, 134, 135, 141, 144, 164, 131, 98, 99, 101, 102, 194, 61, 37, 39, 138, 41, 44, 46, 47, 67, 36, 34, 2, 1, 4, 5, 195}
 
 	blurModel := &model.BlurModel{
-		Model:                 originalModel,
+		OutputModel:           originalModel,
 		BlurMaterialIndexes:   blurMaterialIndexes,
 		BackRootVertexIndexes: backRootVertexIndexes,
 		EdgeTailVertexIndexes: edgeTailVertexIndexes,
@@ -225,7 +225,7 @@ func TestSave05(t *testing.T) {
 	blurModel.OutputMotion.SetPath(fmt.Sprintf("%s_preview.vmd", outputPath))
 	usecase.Save(blurModel)
 
-	blurMaterial := blurModel.OutputModel.Materials.GetByName("_刀身_ブレ")
+	blurMaterial := blurModel.OutputModel.Materials.GetByName("刀身_ブレ")
 	if blurMaterial == nil {
 		t.Errorf("Expected blurMaterial to be not nil, got nil")
 		return
@@ -256,7 +256,7 @@ func TestSave06(t *testing.T) {
 	edgeVertexIndexes := []int{1127, 1116, 1126, 1128, 1114, 1118, 1142, 1115, 1117, 1313, 1533, 1294, 1512, 1292, 1512, 1290, 1510, 1288, 1508, 1286, 1506, 1284, 1504, 1282, 1502, 1280, 1500, 1278, 1499, 1276, 1496, 1274, 1495, 1267, 1489, 1266, 1486, 1395, 1611, 1400, 1618, 1264, 1485, 1262, 1483, 1259, 1481, 1258, 1478, 1270, 1490, 1272, 1492, 1297, 1519, 1296, 1516, 1311, 1531, 1412, 1629, 1410, 1627, 1408, 1625, 1406, 1623, 1404, 1621, 1109, 1137, 1108, 1138}
 
 	blurModel := &model.BlurModel{
-		Model:                 originalModel,
+		OutputModel:           originalModel,
 		BlurMaterialIndexes:   blurMaterialIndexes,
 		BackRootVertexIndexes: backRootVertexIndexes,
 		EdgeTailVertexIndexes: edgeTailVertexIndexes,
@@ -271,7 +271,7 @@ func TestSave06(t *testing.T) {
 	blurModel.OutputMotion.SetPath(fmt.Sprintf("%s_preview.vmd", outputPath))
 	usecase.Save(blurModel)
 
-	blurMaterial := blurModel.OutputModel.Materials.GetByName("_刀身_ブレ")
+	blurMaterial := blurModel.OutputModel.Materials.GetByName("刀身_ブレ")
 	if blurMaterial == nil {
 		t.Errorf("Expected blurMaterial to be not nil, got nil")
 		return
@@ -302,7 +302,7 @@ func TestSave07(t *testing.T) {
 	edgeVertexIndexes := []int{35, 95, 33, 94, 34, 93, 36, 96, 37, 97, 38, 98, 39, 99, 40, 100, 41, 101, 42, 102, 43, 103, 44, 104, 45, 82, 105, 107}
 
 	blurModel := &model.BlurModel{
-		Model:                 originalModel,
+		OutputModel:           originalModel,
 		BlurMaterialIndexes:   blurMaterialIndexes,
 		BackRootVertexIndexes: backRootVertexIndexes,
 		EdgeTailVertexIndexes: edgeTailVertexIndexes,
