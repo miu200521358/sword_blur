@@ -6,6 +6,7 @@ import (
 	"github.com/miu200521358/mlib_go/pkg/mutils/mi18n"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mlog"
 	"github.com/miu200521358/mlib_go/pkg/mwidget"
+	"github.com/miu200521358/mlib_go/pkg/pmx"
 	"github.com/miu200521358/mlib_go/pkg/vmd"
 	"github.com/miu200521358/sword_blur/pkg/model"
 	"github.com/miu200521358/sword_blur/pkg/usecase"
@@ -132,7 +133,7 @@ func (stp *Step5TabPage) funcPreviewButton(blurModel *model.BlurModel) {
 		return
 	} else {
 		blurModel.EdgeVertexIndexes = stp.Items.VertexListBox.GetItemValues()
-		blurModel.OutputModel = nil
+		blurModel.OutputModel = stp.prevStep.prevStep.prevStep.prevStep.Items.OriginalPmxPicker.GetDataForce().(*pmx.PmxModel)
 		blurModel.OutputMotion = nil
 
 		err := usecase.Preview(blurModel)

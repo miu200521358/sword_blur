@@ -13,7 +13,7 @@ import (
 
 // ブレ設定入りモデル出力処理
 func Preview(blurModel *model.BlurModel) error {
-	outputModel, blurRootBone, blurBone := createModel(blurModel.Model, blurModel.BlurMaterialIndexes, blurModel.BackRootVertexIndexes, blurModel.EdgeTailVertexIndexes, blurModel.EdgeVertexIndexes)
+	outputModel, blurRootBone, blurBone := createModel(blurModel.OutputModel, blurModel.BlurMaterialIndexes, blurModel.BackRootVertexIndexes, blurModel.EdgeTailVertexIndexes, blurModel.EdgeVertexIndexes)
 	outputModel.SetPath(blurModel.OutputModelPath)
 	previewVmd := createPreviewVmd(outputModel, blurRootBone, blurBone)
 
