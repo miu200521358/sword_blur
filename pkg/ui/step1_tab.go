@@ -1,10 +1,6 @@
 package ui
 
 import (
-	"fmt"
-	"path/filepath"
-	"time"
-
 	"github.com/miu200521358/mlib_go/pkg/mutils"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mi18n"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mlog"
@@ -189,10 +185,7 @@ func (stp Step1TabPage) funcOriginalPmxModelChanged() func(path string) {
 			stp.Items.OutputPmxPicker.SetEnabled(true)
 
 			// 出力パス設定
-			dir, file := filepath.Split(path)
-			ext := filepath.Ext(file)
-			fileName := fmt.Sprintf("%s_blur_%s%s", file[:len(file)-len(ext)], time.Now().Format("20060102_150405"), ext)
-			outputPath := filepath.Join(dir, fileName)
+			outputPath := mutils.CreateOutputPath(path, "blur")
 			stp.Items.OutputPmxPicker.PathLineEdit.SetText(outputPath)
 
 			if stp.Items.OriginalPmxPicker.Exists() {
