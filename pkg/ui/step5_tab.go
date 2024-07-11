@@ -46,6 +46,13 @@ func NewStep5TabPage(
 
 	walk.NewVSeparator(stp.Items.composite)
 
+	// クリアボタン
+	stp.Items.clearButton, err = walk.NewPushButton(stp.Items.composite)
+	if err != nil {
+		return nil, err
+	}
+	stp.Items.clearButton.SetText(mi18n.T("クリア"))
+
 	// 材質選択リストボックス
 	stp.Items.VertexListBox, err = NewVertexListBox(stp.Items.composite)
 	if err != nil {
@@ -72,6 +79,11 @@ func NewStep5TabPage(
 		return nil, err
 	}
 	stp.Items.saveButton.SetText(mi18n.T("保存"))
+
+	// Step5. clearボタンクリック時
+	stp.Items.clearButton.Clicked().Attach(func() {
+		stp.funcClearButton()
+	})
 
 	// Step5. プレビューボタンクリック時
 	stp.Items.previewButton.Clicked().Attach(func() {
@@ -108,22 +120,43 @@ type Step5TabPage struct {
 // Step3. マウスカーソル位置の頂点選択
 func (stp Step5TabPage) FuncWorldPos(
 	blurModel *model.BlurModel,
-) func(worldPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas, viewMat *mmath.MMat4) {
-	return func(worldPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas, viewMat *mmath.MMat4) {
+) func(prevXprevYFrontPos, prevXprevYBackPos, prevXnowYFrontPos, prevXnowYBackPos,
+	nowXprevYFrontPos, nowXprevYBackPos, nowXnowYFrontPos, nowXnowYBackPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas) {
+	return func(prevXprevYFrontPos, prevXprevYBackPos, prevXnowYFrontPos, prevXnowYBackPos,
+		nowXprevYFrontPos, nowXprevYBackPos, nowXnowYFrontPos, nowXnowYBackPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas) {
 		if !stp.Enabled() {
 			return
 		}
 		if ok, _ := mutils.ExistsFile(blurModel.Model.GetPath()); ok {
-			// 表示されている材質からのみ直近頂点を選ぶ
-			nearestVertexIndexes := vmdDeltas[0].Vertices.GetNearestVertexIndexes(
-				worldPos, blurModel.BlurMaterialIndexes)
-			stp.Items.VertexListBox.SetItem(nearestVertexIndexes)
+			var nearestVertexIndexes [][]int
+			// 直近頂点を取得
+			if prevXnowYFrontPos == nil {
+				nearestVertexIndexes = vmdDeltas[0].Vertices.FindNearestVertexIndexes(
+					prevXprevYFrontPos, blurModel.BlurMaterialIndexes)
+			} else {
+				nearestVertexIndexes = vmdDeltas[0].Vertices.FindVerticesInBox(prevXprevYFrontPos, prevXprevYBackPos,
+					prevXnowYFrontPos, prevXnowYBackPos, nowXprevYFrontPos, nowXprevYBackPos, nowXnowYFrontPos,
+					nowXnowYBackPos, blurModel.BlurMaterialIndexes)
+			}
+
+			for _, vertexIndexes := range nearestVertexIndexes {
+				// 表示されている材質からのみ直近頂点を選ぶ
+				stp.Items.VertexListBox.SetItem(vertexIndexes)
+			}
 
 			go func() {
 				stp.mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextSelectedVertexIndexes: stp.Items.VertexListBox.GetItemValues()}}
 			}()
 		}
 	}
+}
+
+func (stp *Step5TabPage) funcClearButton() {
+	stp.Items.VertexListBox.Clear()
+
+	go func() {
+		stp.mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextSelectedVertexIndexes: []int{}}}
+	}()
 }
 
 // Step5. プレビューボタンクリック時
@@ -207,6 +240,7 @@ func (stp *Step5TabPage) SetEnabled(enabled bool) {
 type Step5Items struct {
 	stepItems
 	VertexListBox *VertexListBox
+	clearButton   *walk.PushButton
 	previewButton *walk.PushButton
 	retryButton   *walk.PushButton
 	saveButton    *walk.PushButton
@@ -215,6 +249,7 @@ type Step5Items struct {
 func (si *Step5Items) SetEnabled(enabled bool) {
 	si.stepItems.SetEnabled(enabled)
 	si.VertexListBox.SetEnabled(enabled)
+	si.clearButton.SetEnabled(enabled)
 	si.previewButton.SetEnabled(enabled)
 	si.retryButton.SetEnabled(enabled)
 	si.saveButton.SetEnabled(enabled)
@@ -223,6 +258,7 @@ func (si *Step5Items) SetEnabled(enabled bool) {
 func (si *Step5Items) Dispose() {
 	si.stepItems.Dispose()
 	si.VertexListBox.Dispose()
+	si.clearButton.Dispose()
 	si.previewButton.Dispose()
 	si.retryButton.Dispose()
 	si.saveButton.Dispose()

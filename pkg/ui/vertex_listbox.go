@@ -35,6 +35,11 @@ func NewVertexListBox(
 	return &VertexListBox{ListBox: lb, VertexListModel: m}, nil
 }
 
+func (lb *VertexListBox) Clear() {
+	lb.VertexListModel.items = make([]string, 0)
+	lb.VertexListModel.PublishItemsReset()
+}
+
 func (lb *VertexListBox) GetItemValues() []int {
 	items := make([]int, 0)
 	for _, item := range lb.VertexListModel.items {

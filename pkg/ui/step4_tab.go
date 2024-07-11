@@ -44,6 +44,13 @@ func NewStep4TabPage(
 
 	walk.NewVSeparator(stp.Items.composite)
 
+	// クリアボタン
+	stp.Items.clearButton, err = walk.NewPushButton(stp.Items.composite)
+	if err != nil {
+		return nil, err
+	}
+	stp.Items.clearButton.SetText(mi18n.T("クリア"))
+
 	// 頂点選択リストボックス
 	stp.Items.VertexListBox, err = NewVertexListBox(stp.Items.composite)
 	if err != nil {
@@ -60,6 +67,11 @@ func NewStep4TabPage(
 	// Step3. OKボタンクリック時
 	step3Page.Items.okButton.Clicked().Attach(func() {
 		step3Page.funcOkButton(blurModel)
+	})
+
+	// Step4. clearボタンクリック時
+	stp.Items.clearButton.Clicked().Attach(func() {
+		stp.funcClearButton()
 	})
 
 	return stp, nil
@@ -98,19 +110,40 @@ func (step4Page *Step4TabPage) funcOkButton(blurModel *model.BlurModel) {
 	}
 }
 
+func (stp *Step4TabPage) funcClearButton() {
+	stp.Items.VertexListBox.Clear()
+
+	go func() {
+		stp.mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextSelectedVertexIndexes: []int{}}}
+	}()
+}
+
 // Step3. マウスカーソル位置の頂点選択
 func (stp Step4TabPage) FuncWorldPos(
 	blurModel *model.BlurModel,
-) func(worldPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas, viewMat *mmath.MMat4) {
-	return func(worldPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas, viewMat *mmath.MMat4) {
+) func(prevXprevYFrontPos, prevXprevYBackPos, prevXnowYFrontPos, prevXnowYBackPos,
+	nowXprevYFrontPos, nowXprevYBackPos, nowXnowYFrontPos, nowXnowYBackPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas) {
+	return func(prevXprevYFrontPos, prevXprevYBackPos, prevXnowYFrontPos, prevXnowYBackPos,
+		nowXprevYFrontPos, nowXprevYBackPos, nowXnowYFrontPos, nowXnowYBackPos *mmath.MVec3, vmdDeltas []*vmd.VmdDeltas) {
 		if !stp.Enabled() {
 			return
 		}
 		if ok, _ := mutils.ExistsFile(blurModel.Model.GetPath()); ok {
-			// 表示されている材質からのみ直近頂点を選ぶ
-			nearestVertexIndexes := vmdDeltas[0].Vertices.GetNearestVertexIndexes(
-				worldPos, blurModel.BlurMaterialIndexes)
-			stp.Items.VertexListBox.SetItem(nearestVertexIndexes)
+			var nearestVertexIndexes [][]int
+			// 直近頂点を取得
+			if prevXnowYFrontPos == nil {
+				nearestVertexIndexes = vmdDeltas[0].Vertices.FindNearestVertexIndexes(
+					prevXprevYFrontPos, blurModel.BlurMaterialIndexes)
+			} else {
+				nearestVertexIndexes = vmdDeltas[0].Vertices.FindVerticesInBox(prevXprevYFrontPos, prevXprevYBackPos,
+					prevXnowYFrontPos, prevXnowYBackPos, nowXprevYFrontPos, nowXprevYBackPos, nowXnowYFrontPos,
+					nowXnowYBackPos, blurModel.BlurMaterialIndexes)
+			}
+
+			for _, vertexIndexes := range nearestVertexIndexes {
+				// 表示されている材質からのみ直近頂点を選ぶ
+				stp.Items.VertexListBox.SetItem(vertexIndexes)
+			}
 
 			go func() {
 				stp.mWindow.GetMainGlWindow().ReplaceModelSetChannel <- map[int]*mwidget.ModelSet{0: {NextSelectedVertexIndexes: stp.Items.VertexListBox.GetItemValues()}}
@@ -131,16 +164,19 @@ type Step4Items struct {
 	stepItems
 	VertexListBox *VertexListBox
 	okButton      *walk.PushButton
+	clearButton   *walk.PushButton
 }
 
 func (si *Step4Items) SetEnabled(enabled bool) {
 	si.stepItems.SetEnabled(enabled)
 	si.VertexListBox.SetEnabled(enabled)
 	si.okButton.SetEnabled(enabled)
+	si.clearButton.SetEnabled(enabled)
 }
 
 func (si *Step4Items) Dispose() {
 	si.stepItems.Dispose()
 	si.VertexListBox.Dispose()
 	si.okButton.Dispose()
+	si.clearButton.Dispose()
 }

@@ -44,6 +44,13 @@ func NewStep2TabPage(
 
 	walk.NewVSeparator(stp.Items.composite)
 
+	// クリアボタン
+	stp.Items.clearButton, err = walk.NewPushButton(stp.Items.composite)
+	if err != nil {
+		return nil, err
+	}
+	stp.Items.clearButton.SetText(mi18n.T("クリア"))
+
 	// 材質選択リストボックス
 	stp.Items.MaterialListBox, err = NewMaterialListBox(stp.Items.composite)
 	if err != nil {
@@ -60,6 +67,14 @@ func NewStep2TabPage(
 	// Step1. OKボタンクリック時
 	step1Page.Items.okButton.Clicked().Attach(func() {
 		step1Page.funcOkButton(blurModel)
+	})
+
+	// Step2. clearボタンクリック時
+	stp.Items.clearButton.Clicked().Attach(func() {
+		// 材質リストボックス設定
+		stp.Items.MaterialListBox.SetMaterials(
+			blurModel.Model.Materials,
+			stp.funcMaterialListBoxChanged(blurModel))
 	})
 
 	return stp, nil
@@ -138,16 +153,19 @@ type Step2Items struct {
 	stepItems
 	MaterialListBox *MaterialListBox
 	okButton        *walk.PushButton
+	clearButton     *walk.PushButton
 }
 
 func (si *Step2Items) SetEnabled(enabled bool) {
 	si.stepItems.SetEnabled(enabled)
 	si.MaterialListBox.SetEnabled(enabled)
 	si.okButton.SetEnabled(enabled)
+	si.clearButton.SetEnabled(enabled)
 }
 
 func (si *Step2Items) Dispose() {
 	si.stepItems.Dispose()
 	si.MaterialListBox.Dispose()
 	si.okButton.Dispose()
+	si.clearButton.Dispose()
 }

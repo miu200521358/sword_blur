@@ -8,6 +8,7 @@ import (
 
 type MaterialListBox struct {
 	*walk.ListBox
+	materials         *pmx.Materials
 	MaterialListModel *MaterialListModel
 }
 
