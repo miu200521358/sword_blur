@@ -3,8 +3,10 @@ package usecase
 import (
 	"fmt"
 
-	"github.com/miu200521358/mlib_go/pkg/mmath"
-	"github.com/miu200521358/mlib_go/pkg/pmx"
+	"github.com/miu200521358/mlib_go/pkg/domain/mmath"
+	"github.com/miu200521358/mlib_go/pkg/domain/pmx"
+	"github.com/miu200521358/mlib_go/pkg/infrastructure/repository"
+	"github.com/miu200521358/mlib_go/pkg/mutils"
 	"github.com/miu200521358/sword_blur/pkg/model"
 )
 
@@ -13,11 +15,8 @@ func SetupModel(blurModel *model.BlurModel) {
 	// 材質モーフ追加
 	addMaterialMorph(blurModel.Model)
 
-	// dir, file := filepath.Split(model.GetPath())
-	// ext := filepath.Ext(file)
-	// outputPath := filepath.Join(dir, file[:len(file)-len(ext)]+"_debug"+ext)
-
-	// model.Save(true, outputPath)
+	outputPath := mutils.CreateOutputPath(blurModel.Model.Path(), "debug")
+	repository.NewPmxRepository().Save(outputPath, blurModel.Model, true)
 }
 
 func addMaterialMorph(model *pmx.PmxModel) {
@@ -25,21 +24,21 @@ func addMaterialMorph(model *pmx.PmxModel) {
 	for i := range model.Materials.Len() {
 		material := model.Materials.Get(i)
 		offset := pmx.NewMaterialMorphOffset(
-			material.Index,
+			material.Index(),
 			pmx.CALC_MODE_MULTIPLICATION,
 			// 透明度だけを操作する（最初から透明なものはそのまま）
-			&mmath.MVec4{1.0, 1.0, 1.0, 0.0},
-			&mmath.MVec4{1.0, 1.0, 1.0, 1.0},
-			&mmath.MVec3{1.0, 1.0, 1.0},
-			&mmath.MVec4{1.0, 1.0, 1.0, 0.0},
+			&mmath.MVec4{X: 1.0, Y: 1.0, Z: 1.0, W: 0.0},
+			&mmath.MVec4{X: 1.0, Y: 1.0, Z: 1.0, W: 1.0},
+			&mmath.MVec3{X: 1.0, Y: 1.0, Z: 1.0},
+			&mmath.MVec4{X: 1.0, Y: 1.0, Z: 1.0, W: 0.0},
 			0.0,
-			&mmath.MVec4{1.0, 1.0, 1.0, 1.0},
-			&mmath.MVec4{1.0, 1.0, 1.0, 1.0},
-			&mmath.MVec4{1.0, 1.0, 1.0, 1.0},
+			&mmath.MVec4{X: 1.0, Y: 1.0, Z: 1.0, W: 1.0},
+			&mmath.MVec4{X: 1.0, Y: 1.0, Z: 1.0, W: 1.0},
+			&mmath.MVec4{X: 1.0, Y: 1.0, Z: 1.0, W: 1.0},
 		)
 		morph := pmx.NewMorph()
-		morph.Index = model.Morphs.Len()
-		morph.Name = GetVisibleMorphName(material)
+		morph.SetIndex(model.Morphs.Len())
+		morph.SetName(getVisibleMorphName(material))
 		morph.Offsets = append(morph.Offsets, offset)
 		morph.MorphType = pmx.MORPH_TYPE_MATERIAL
 		morph.Panel = pmx.MORPH_PANEL_OTHER_LOWER_RIGHT
@@ -48,6 +47,6 @@ func addMaterialMorph(model *pmx.PmxModel) {
 	}
 }
 
-func GetVisibleMorphName(material *pmx.Material) string {
-	return fmt.Sprintf("%s_%d_%s", pmx.MLIB_PREFIX, material.Index, material.Name)
+func getVisibleMorphName(material *pmx.Material) string {
+	return fmt.Sprintf("%s_%d_%s", pmx.MLIB_PREFIX, material.Index(), material.Name())
 }

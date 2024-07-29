@@ -5,30 +5,34 @@ package main
 
 import (
 	"embed"
-	"fmt"
 	"log"
 	"runtime"
 
+	"github.com/miu200521358/sword_blur/pkg/ui"
 	"github.com/miu200521358/walk/pkg/walk"
 
+	"github.com/miu200521358/mlib_go/pkg/interface/app"
+	"github.com/miu200521358/mlib_go/pkg/interface/controller"
+	"github.com/miu200521358/mlib_go/pkg/interface/controller/widget"
+	"github.com/miu200521358/mlib_go/pkg/interface/viewer"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mconfig"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mi18n"
-	"github.com/miu200521358/mlib_go/pkg/mwidget"
-	"github.com/miu200521358/sword_blur/pkg/model"
-	"github.com/miu200521358/sword_blur/pkg/ui"
 )
+
+var env string
 
 func init() {
 	runtime.LockOSThread()
 
+	// システム上のすべての論理プロセッサを使用させる
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
 	walk.AppendToWalkInit(func() {
-		walk.MustRegisterWindowClass(mwidget.FilePickerClass)
-		walk.MustRegisterWindowClass(mwidget.MotionPlayerClass)
-		walk.MustRegisterWindowClass(mwidget.ConsoleViewClass)
+		walk.MustRegisterWindowClass(widget.FilePickerClass)
+		walk.MustRegisterWindowClass(widget.MotionPlayerClass)
+		walk.MustRegisterWindowClass(widget.ConsoleViewClass)
 	})
 }
-
-var env string
 
 //go:embed app/*
 var appFiles embed.FS
@@ -37,78 +41,36 @@ var appFiles embed.FS
 var appI18nFiles embed.FS
 
 func main() {
-	var mWindow *mwidget.MWindow
-	var err error
-
 	appConfig := mconfig.LoadAppConfig(appFiles)
 	appConfig.Env = env
 	mi18n.Initialize(appI18nFiles)
 
-	if appConfig.IsEnvProd() || appConfig.IsEnvDev() {
-		defer mwidget.RecoverFromPanic(mWindow)
-	}
+	mApp := app.NewMApp(appConfig)
 
-	iconImg, err := mconfig.LoadIconFile(appFiles)
-	mwidget.CheckError(err, nil, mi18n.T("アイコン生成エラー"))
-
-	glWindow, err := mwidget.NewGlWindow(512, 768, 0, iconImg, appConfig, nil, nil)
-	mwidget.CheckError(err, mWindow, mi18n.T("ビューワーウィンドウ生成エラー"))
+	controlState := controller.NewControlState(mApp)
+	controlState.Run()
 
 	go func() {
-		mWindow, err = mwidget.NewMWindow(512, 768, ui.GetMenuItems, iconImg, appConfig, true)
-		mwidget.CheckError(err, nil, mi18n.T("メインウィンドウ生成エラー"))
+		// 操作ウィンドウは別スレッドで起動
+		controlWindow := controller.NewControlWindow(appConfig, controlState, ui.GetMenuItems, 2)
+		mApp.SetControlWindow(controlWindow)
 
-		blurModel := model.NewBlurModel()
+		controlWindow.InitTabWidget()
+		ui.NewToolState(mApp, controlWindow)
 
-		step1Page, err := ui.NewStep1TabPage(mWindow)
-		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
+		consoleView := widget.NewConsoleView(controlWindow.MainWindow, 256, 50)
+		log.SetOutput(consoleView)
 
-		step2Page, err := ui.NewStep2TabPage(mWindow, step1Page, blurModel)
-		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
-
-		step3Page, err := ui.NewStep3TabPage(mWindow, step2Page, blurModel)
-		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
-
-		step4Page, err := ui.NewStep4TabPage(mWindow, step3Page, blurModel)
-		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
-
-		step5Page, err := ui.NewStep5TabPage(mWindow, step4Page, blurModel)
-		mwidget.CheckError(err, nil, mi18n.T("タブページ生成エラー"))
-
-		// 関数紐付け切り替え
-		mWindow.TabWidget.CurrentIndexChanged().Attach(func() {
-			if mWindow.TabWidget.CurrentIndex() == 2 {
-				mWindow.GetMainGlWindow().SetFuncWorldPos(step3Page.FuncWorldPos(blurModel))
-			} else if mWindow.TabWidget.CurrentIndex() == 3 {
-				mWindow.GetMainGlWindow().SetFuncWorldPos(step4Page.FuncWorldPos(blurModel))
-			} else if mWindow.TabWidget.CurrentIndex() == 4 {
-				mWindow.GetMainGlWindow().SetFuncWorldPos(step5Page.FuncWorldPos(blurModel))
-			} else {
-				mWindow.GetMainGlWindow().SetFuncWorldPos(nil)
-			}
-		})
-
-		// コンソールはタブ外に表示
-		mWindow.ConsoleView, err = mwidget.NewConsoleView(mWindow, 256, 30)
-		mwidget.CheckError(err, mWindow, mi18n.T("コンソール生成エラー"))
-		log.SetOutput(mWindow.ConsoleView)
-
-		glWindow.SetMotionPlayer(step1Page.Items.MotionPlayer)
-		glWindow.SetTitle(fmt.Sprintf("%s %s", mWindow.Title(), mi18n.T("ビューワー")))
-		mWindow.AddGlWindow(glWindow)
-
-		mWindow.AsFormBase().Closing().Attach(func(canceled *bool, reason walk.CloseReason) {
-			go func() {
-				mWindow.GetMainGlWindow().IsClosedChannel <- true
-			}()
-			mWindow.Close()
-		})
-
-		step2Page.SetEnabled(false)
-
-		mWindow.Center()
-		mWindow.Run()
+		mApp.ControllerRun()
 	}()
 
-	glWindow.Run()
+	mApp.AddViewWindow(viewer.NewViewWindow(mApp.ViewerCount(), appConfig, mApp, "メインビューワー", nil))
+	mApp.AddViewWindow(viewer.NewViewWindow(mApp.ViewerCount(), appConfig, mApp, "プレビュービューワー", mApp.MainViewWindow().GetWindow()))
+
+	mApp.ExtendAnimationState(0, 0)
+	mApp.ExtendAnimationState(0, 1)
+	mApp.ExtendAnimationState(1, 0)
+
+	mApp.Center()
+	mApp.ViewerRun()
 }

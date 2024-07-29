@@ -1,4 +1,13 @@
 {
     "Name": "SwordBlur",
-    "Version": "1.0.0_beta_02"
+    "Version": "1.0.0_beta_03",
+    "Horizontal": true,
+    "ControlWindowSize": {
+        "Width": 512,
+        "Height": 768
+    },
+    "ViewWindowSize": {
+        "Width": 512,
+        "Height": 768
+    }
 }
