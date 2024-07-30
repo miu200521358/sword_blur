@@ -21,6 +21,9 @@ type ToolState struct {
 	MaterialListBox   *MaterialListBox
 	Step2OkButton     *walk.PushButton
 	Step2ClearButton  *walk.PushButton
+	RootVertexListBox *VertexListBox
+	Step3OkButton     *walk.PushButton
+	Step3ClearButton  *walk.PushButton
 }
 
 func NewToolState(appState state.IAppState, controlWindow *controller.ControlWindow) *ToolState {

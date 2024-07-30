@@ -3,7 +3,6 @@ package ui
 import (
 	"slices"
 
-	"github.com/miu200521358/mlib_go/pkg/domain/pmx"
 	"github.com/miu200521358/mlib_go/pkg/domain/vmd"
 	"github.com/miu200521358/mlib_go/pkg/infrastructure/animation"
 	"github.com/miu200521358/mlib_go/pkg/interface/controller"
@@ -102,28 +101,14 @@ func (toolState *ToolState) onChangeMaterialListBox() func(indexes []int) {
 }
 
 func (toolState *ToolState) onClickStep2Ok() {
-	if !toolState.OriginalPmxPicker.Exists() {
+	if len(toolState.MaterialListBox.SelectedIndexes()) == 0 {
 		mlog.ILT(mi18n.T("設定失敗"), mi18n.T("Step2失敗"))
 		return
 	}
 
-	data, err := toolState.OriginalPmxPicker.Load()
-	if err != nil {
-		mlog.ILT(mi18n.T("設定失敗"), mi18n.T("Step2失敗"))
-		return
-	}
-
-	toolState.BlurModel.Model = data.(*pmx.PmxModel)
-
-	if toolState.OriginalVmdPicker.Exists() {
-		data, err = toolState.OriginalVmdPicker.Load()
-		if err == nil {
-			toolState.BlurModel.Motion = data.(*vmd.VmdMotion)
-		} else {
-			toolState.BlurModel.Motion = vmd.NewVmdMotion("")
-		}
-	} else {
-		toolState.BlurModel.Motion = vmd.NewVmdMotion("")
-	}
+	// 材質選択設定
+	toolState.BlurModel.BlurMaterialIndexes = toolState.MaterialListBox.SelectedIndexes()
+	toolState.BlurModel.OutputModel = nil
+	toolState.BlurModel.OutputMotion = nil
 
 }
