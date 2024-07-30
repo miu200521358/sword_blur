@@ -139,6 +139,11 @@ func (toolState *ToolState) onClickStep1Ok() {
 		toolState.BlurModel.Model.Materials,
 		toolState.onChangeMaterialListBox())
 
+	// モーフ付きモデルに切り替え
+	animationState := animation.NewAnimationState(0, 0)
+	animationState.SetModel(toolState.BlurModel.Model)
+	toolState.ControlWindow.SetAnimationState(animationState)
+
 	toolState.ControlWindow.SetTabIndex(1) // Step2へ移動
 	toolState.SetEnabled(2)
 	mlog.IL(mi18n.T("Step1成功"))

@@ -68,6 +68,7 @@ func main() {
 	mApp.AddViewWindow(viewer.NewViewWindow(mApp.ViewerCount(), appConfig, mApp, "プレビュービューワー", mApp.MainViewWindow().GetWindow()))
 
 	mApp.ExtendAnimationState(0, 0)
+	mApp.ExtendAnimationState(1, 0)
 
 	mApp.Center()
 	mApp.ViewerRun()

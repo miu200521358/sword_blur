@@ -88,12 +88,16 @@ func (toolState *ToolState) onChangeMaterialListBox() func(indexes []int) {
 				invisibleMaterialIndexes = append(invisibleMaterialIndexes, i)
 			}
 			toolState.BlurModel.Motion.AppendRegisteredMorphFrame(usecase.GetVisibleMorphName(material), mf)
-
-			animationState := animation.NewAnimationState(0, 0)
-			animationState.SetMotion(toolState.BlurModel.Motion)
-			animationState.SetInvisibleMaterialIndexes(invisibleMaterialIndexes)
-			toolState.ControlWindow.SetAnimationState(animationState)
 		}
+
+		// outputPath := mutils.CreateOutputPath(
+		// 	strings.ReplaceAll(toolState.BlurModel.Model.Path(), ".pmx", ".vmd"), "mat_off")
+		// repository.NewVmdRepository().Save(outputPath, toolState.BlurModel.Motion, true)
+
+		animationState := animation.NewAnimationState(0, 0)
+		animationState.SetMotion(toolState.BlurModel.Motion)
+		animationState.SetInvisibleMaterialIndexes(invisibleMaterialIndexes)
+		toolState.ControlWindow.SetAnimationState(animationState)
 	}
 }
 

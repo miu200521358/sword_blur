@@ -12,6 +12,7 @@ import (
 func SetupModel(blurModel *model.BlurModel) {
 	// 材質モーフ追加
 	addMaterialMorph(blurModel.Model)
+	blurModel.Model.UpdateHash()
 
 	// outputPath := mutils.CreateOutputPath(blurModel.Model.Path(), "debug")
 	// repository.NewPmxRepository().Save(outputPath, blurModel.Model, true)
