@@ -13,14 +13,14 @@ import (
 	"github.com/miu200521358/walk/pkg/walk"
 )
 
-// ------------------------------
-
 func newStep1Tab(controlWindow *controller.ControlWindow, toolState *ToolState) {
 	{
 		toolState.Step1 = widget.NewMTabPage("Step.1")
 		controlWindow.AddTabPage(toolState.Step1.TabPage)
 
 		toolState.Step1.SetLayout(walk.NewVBoxLayout())
+
+		var err error
 
 		{
 			// Step1. ファイル選択文言
@@ -91,13 +91,14 @@ func newStep1Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 		walk.NewVSpacer(toolState.Step1)
 
 		// OKボタン
-		var err error
-		toolState.Step1OkButton, err = walk.NewPushButton(toolState.Step1)
-		if err != nil {
-			widget.RaiseError(err)
+		{
+			toolState.Step1OkButton, err = walk.NewPushButton(toolState.Step1)
+			if err != nil {
+				widget.RaiseError(err)
+			}
+			toolState.Step1OkButton.SetText(mi18n.T("次へ進む"))
+			toolState.Step1OkButton.Clicked().Attach(toolState.onClickStep1Ok)
 		}
-		toolState.Step1OkButton.SetText(mi18n.T("次へ進む"))
-		toolState.Step1OkButton.Clicked().Attach(toolState.onClickStep1Ok)
 	}
 }
 
@@ -132,4 +133,13 @@ func (toolState *ToolState) onClickStep1Ok() {
 	toolState.BlurModel.OutputModelPath = toolState.OutputPmxPicker.GetPath()
 	toolState.BlurModel.OutputModel = nil
 	toolState.BlurModel.OutputMotion = nil
+
+	// Step2.材質リストボックス設定
+	toolState.MaterialListBox.SetMaterials(
+		toolState.BlurModel.Model.Materials,
+		toolState.onChangeMaterialListBox())
+
+	toolState.ControlWindow.SetTabIndex(1) // Step2へ移動
+	toolState.SetEnabled(2)
+	mlog.IL(mi18n.T("Step1成功"))
 }

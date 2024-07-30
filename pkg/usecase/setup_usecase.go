@@ -5,8 +5,6 @@ import (
 
 	"github.com/miu200521358/mlib_go/pkg/domain/mmath"
 	"github.com/miu200521358/mlib_go/pkg/domain/pmx"
-	"github.com/miu200521358/mlib_go/pkg/infrastructure/repository"
-	"github.com/miu200521358/mlib_go/pkg/mutils"
 	"github.com/miu200521358/sword_blur/pkg/model"
 )
 
@@ -15,8 +13,8 @@ func SetupModel(blurModel *model.BlurModel) {
 	// 材質モーフ追加
 	addMaterialMorph(blurModel.Model)
 
-	outputPath := mutils.CreateOutputPath(blurModel.Model.Path(), "debug")
-	repository.NewPmxRepository().Save(outputPath, blurModel.Model, true)
+	// outputPath := mutils.CreateOutputPath(blurModel.Model.Path(), "debug")
+	// repository.NewPmxRepository().Save(outputPath, blurModel.Model, true)
 }
 
 func addMaterialMorph(model *pmx.PmxModel) {
@@ -38,7 +36,7 @@ func addMaterialMorph(model *pmx.PmxModel) {
 		)
 		morph := pmx.NewMorph()
 		morph.SetIndex(model.Morphs.Len())
-		morph.SetName(getVisibleMorphName(material))
+		morph.SetName(GetVisibleMorphName(material))
 		morph.Offsets = append(morph.Offsets, offset)
 		morph.MorphType = pmx.MORPH_TYPE_MATERIAL
 		morph.Panel = pmx.MORPH_PANEL_OTHER_LOWER_RIGHT
@@ -47,6 +45,6 @@ func addMaterialMorph(model *pmx.PmxModel) {
 	}
 }
 
-func getVisibleMorphName(material *pmx.Material) string {
+func GetVisibleMorphName(material *pmx.Material) string {
 	return fmt.Sprintf("%s_%d_%s", pmx.MLIB_PREFIX, material.Index(), material.Name())
 }

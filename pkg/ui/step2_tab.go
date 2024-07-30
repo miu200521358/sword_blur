@@ -1,0 +1,125 @@
+package ui
+
+import (
+	"slices"
+
+	"github.com/miu200521358/mlib_go/pkg/domain/pmx"
+	"github.com/miu200521358/mlib_go/pkg/domain/vmd"
+	"github.com/miu200521358/mlib_go/pkg/infrastructure/animation"
+	"github.com/miu200521358/mlib_go/pkg/interface/controller"
+	"github.com/miu200521358/mlib_go/pkg/interface/controller/widget"
+	"github.com/miu200521358/mlib_go/pkg/mutils/mi18n"
+	"github.com/miu200521358/mlib_go/pkg/mutils/mlog"
+	"github.com/miu200521358/sword_blur/pkg/usecase"
+	"github.com/miu200521358/walk/pkg/walk"
+)
+
+func newStep2Tab(controlWindow *controller.ControlWindow, toolState *ToolState) {
+	{
+		toolState.Step2 = widget.NewMTabPage("Step.2")
+		controlWindow.AddTabPage(toolState.Step2.TabPage)
+
+		toolState.Step2.SetLayout(walk.NewVBoxLayout())
+
+		{
+			// Step2.文言
+			label, err := walk.NewTextLabel(toolState.Step2)
+			if err != nil {
+				widget.RaiseError(err)
+			}
+			label.SetText(mi18n.T("Step2Label"))
+		}
+
+		walk.NewVSeparator(toolState.Step2)
+
+		var err error
+		{
+			// クリアボタン
+			toolState.Step2ClearButton, err = walk.NewPushButton(toolState.Step2)
+			if err != nil {
+				widget.RaiseError(err)
+			}
+			toolState.Step2ClearButton.SetText(mi18n.T("クリア"))
+			toolState.Step2ClearButton.Clicked().Attach(toolState.onClickStep2Clear)
+		}
+
+		{
+			// 材質選択リストボックス
+			toolState.MaterialListBox, err = NewMaterialListBox(toolState.Step2)
+			if err != nil {
+				widget.RaiseError(err)
+			}
+		}
+
+		{
+			// OKボタン
+			toolState.Step2OkButton, err = walk.NewPushButton(toolState.Step2)
+			if err != nil {
+				widget.RaiseError(err)
+			}
+			toolState.Step2OkButton.SetText(mi18n.T("次へ進む"))
+			toolState.Step2OkButton.Clicked().Attach(toolState.onClickStep2Ok)
+		}
+	}
+}
+
+func (toolState *ToolState) onClickStep2Clear() {
+	// 材質リストボックス設定
+	toolState.MaterialListBox.SetMaterials(
+		toolState.BlurModel.Model.Materials,
+		toolState.onChangeMaterialListBox())
+}
+
+// Step2. 材質選択時
+func (toolState *ToolState) onChangeMaterialListBox() func(indexes []int) {
+	return func(indexes []int) {
+		if !toolState.MaterialListBox.Enabled() {
+			return
+		}
+
+		invisibleMaterialIndexes := make([]int, 0)
+		for i := range toolState.BlurModel.Model.Materials.Len() {
+			material := toolState.BlurModel.Model.Materials.Get(i)
+			mf := vmd.NewMorphFrame(0)
+			if slices.Contains(indexes, i) {
+				mf.Ratio = 0.0
+			} else {
+				mf.Ratio = 1.0
+				invisibleMaterialIndexes = append(invisibleMaterialIndexes, i)
+			}
+			toolState.BlurModel.Motion.AppendRegisteredMorphFrame(usecase.GetVisibleMorphName(material), mf)
+
+			animationState := animation.NewAnimationState(0, 0)
+			animationState.SetMotion(toolState.BlurModel.Motion)
+			animationState.SetInvisibleMaterialIndexes(invisibleMaterialIndexes)
+			toolState.ControlWindow.SetAnimationState(animationState)
+		}
+	}
+}
+
+func (toolState *ToolState) onClickStep2Ok() {
+	if !toolState.OriginalPmxPicker.Exists() {
+		mlog.ILT(mi18n.T("設定失敗"), mi18n.T("Step2失敗"))
+		return
+	}
+
+	data, err := toolState.OriginalPmxPicker.Load()
+	if err != nil {
+		mlog.ILT(mi18n.T("設定失敗"), mi18n.T("Step2失敗"))
+		return
+	}
+
+	toolState.BlurModel.Model = data.(*pmx.PmxModel)
+
+	if toolState.OriginalVmdPicker.Exists() {
+		data, err = toolState.OriginalVmdPicker.Load()
+		if err == nil {
+			toolState.BlurModel.Motion = data.(*vmd.VmdMotion)
+		} else {
+			toolState.BlurModel.Motion = vmd.NewVmdMotion("")
+		}
+	} else {
+		toolState.BlurModel.Motion = vmd.NewVmdMotion("")
+	}
+
+}
