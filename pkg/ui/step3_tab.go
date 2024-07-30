@@ -13,38 +13,38 @@ import (
 	"github.com/miu200521358/walk/pkg/walk"
 )
 
-func newStep2Tab(controlWindow *controller.ControlWindow, toolState *ToolState) {
+func newStep3Tab(controlWindow *controller.ControlWindow, toolState *ToolState) {
 	{
-		toolState.Step2 = widget.NewMTabPage("Step.2")
-		controlWindow.AddTabPage(toolState.Step2.TabPage)
+		toolState.Step3 = widget.NewMTabPage("Step.3")
+		controlWindow.AddTabPage(toolState.Step3.TabPage)
 
-		toolState.Step2.SetLayout(walk.NewVBoxLayout())
+		toolState.Step3.SetLayout(walk.NewVBoxLayout())
 
 		{
-			// Step2.文言
-			label, err := walk.NewTextLabel(toolState.Step2)
+			// Step3.文言
+			label, err := walk.NewTextLabel(toolState.Step3)
 			if err != nil {
 				widget.RaiseError(err)
 			}
-			label.SetText(mi18n.T("Step2Label"))
+			label.SetText(mi18n.T("Step3Label"))
 		}
 
-		walk.NewVSeparator(toolState.Step2)
+		walk.NewVSeparator(toolState.Step3)
 
 		var err error
 		{
 			// クリアボタン
-			toolState.Step2ClearButton, err = walk.NewPushButton(toolState.Step2)
+			toolState.Step3ClearButton, err = walk.NewPushButton(toolState.Step3)
 			if err != nil {
 				widget.RaiseError(err)
 			}
-			toolState.Step2ClearButton.SetText(mi18n.T("クリア"))
-			toolState.Step2ClearButton.Clicked().Attach(toolState.onClickStep2Clear)
+			toolState.Step3ClearButton.SetText(mi18n.T("クリア"))
+			toolState.Step3ClearButton.Clicked().Attach(toolState.onClickStep3Clear)
 		}
 
 		{
-			// 材質選択リストボックス
-			toolState.MaterialListBox, err = NewMaterialListBox(toolState.Step2)
+			// 頂点選択リストボックス
+			toolState.RootVertexListBox, err = NewVertexListBox(toolState.Step3)
 			if err != nil {
 				widget.RaiseError(err)
 			}
@@ -52,25 +52,21 @@ func newStep2Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 
 		{
 			// OKボタン
-			toolState.Step2OkButton, err = walk.NewPushButton(toolState.Step2)
+			toolState.Step3OkButton, err = walk.NewPushButton(toolState.Step3)
 			if err != nil {
 				widget.RaiseError(err)
 			}
-			toolState.Step2OkButton.SetText(mi18n.T("次へ進む"))
-			toolState.Step2OkButton.Clicked().Attach(toolState.onClickStep2Ok)
+			toolState.Step3OkButton.SetText(mi18n.T("次へ進む"))
+			toolState.Step3OkButton.Clicked().Attach(toolState.onClickStep3Ok)
 		}
 	}
 }
 
-func (toolState *ToolState) onClickStep2Clear() {
-	// 材質リストボックス設定
-	toolState.MaterialListBox.SetMaterials(
-		toolState.BlurModel.Model.Materials,
-		toolState.onChangeMaterialListBox())
+func (toolState *ToolState) onClickStep3Clear() {
 }
 
-// Step2. 材質選択時
-func (toolState *ToolState) onChangeMaterialListBox() func(indexes []int) {
+// Step3. 頂点選択時
+func (toolState *ToolState) onChangeRootVertexListBox() func(indexes []int) {
 	return func(indexes []int) {
 		if !toolState.MaterialListBox.Enabled() {
 			return
@@ -100,20 +96,15 @@ func (toolState *ToolState) onChangeMaterialListBox() func(indexes []int) {
 	}
 }
 
-func (toolState *ToolState) onClickStep2Ok() {
+func (toolState *ToolState) onClickStep3Ok() {
 	if len(toolState.MaterialListBox.SelectedIndexes()) == 0 {
-		mlog.ILT(mi18n.T("設定失敗"), mi18n.T("Step2失敗"))
+		mlog.ILT(mi18n.T("設定失敗"), mi18n.T("Step3失敗"))
 		return
 	}
 
-	// ワイヤーフレーム表示
-	toolState.ControlWindow.SetShowWire(true)
-	toolState.ControlWindow.TriggerShowWire()
-	// 頂点選択ON
-	toolState.ControlWindow.SetShowSelectedVertex(true)
-	toolState.ControlWindow.TriggerShowSelectedVertex()
+	// 材質選択設定
+	toolState.BlurModel.BlurMaterialIndexes = toolState.MaterialListBox.SelectedIndexes()
+	toolState.BlurModel.OutputModel = nil
+	toolState.BlurModel.OutputMotion = nil
 
-	toolState.ControlWindow.SetTabIndex(2) // Step3へ移動
-	toolState.SetEnabled(3)
-	mlog.IL(mi18n.T("Step2成功"))
 }
