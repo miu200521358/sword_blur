@@ -122,6 +122,8 @@ func (toolState *ToolState) onClickStep5Preview() {
 	err := usecase.Preview(toolState.BlurModel)
 	if err != nil {
 		mlog.ET(mi18n.T("生成失敗"), mi18n.T("生成失敗メッセージ", map[string]interface{}{"Error": err.Error()}))
+	} else {
+		mlog.IT(mi18n.T("生成成功"), mi18n.T("生成成功メッセージ"))
 	}
 
 	// プレビュー後ステータスに更新
@@ -143,13 +145,17 @@ func (toolState *ToolState) onClickStep5Preview() {
 }
 
 func (toolState *ToolState) onClickStep5Retry() {
-	// 戻す
-	toolState.SetEnabled(5)
-
 	// ワイヤーフレーム表示
 	toolState.ControlWindow.SetShowWire(true)
 	// 頂点選択ON
 	toolState.ControlWindow.SetShowSelectedVertex(true)
+
+	// リセット後に選択復活
+	toolState.BlurModel.EdgeVertexIndexes = toolState.EdgeVertexListBox.GetItemValues()
+	toolState.ResetSelectedVertexIndexes(false, false, true, nil)
+
+	// 戻す
+	toolState.SetEnabled(5)
 
 	toolState.BlurModel.OutputModel = nil
 	toolState.BlurModel.OutputMotion = nil

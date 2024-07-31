@@ -42,6 +42,8 @@ func createPreviewVmd(outputModel *pmx.PmxModel, blurRootBone, blurBone *pmx.Bon
 
 			index := (i * 6 * 20) + (j * 20)
 			bf := vmd.NewBoneFrame(index)
+			// 少し上に表示する
+			bf.Position = &mmath.MVec3{X: 0.0, Y: 3.0, Z: 0.0}
 			// 回す方向はブレの軸制限方向
 			bf.Rotation = mmath.NewMQuaternionFromAxisAngles(blurBone.FixedAxis, angle)
 
