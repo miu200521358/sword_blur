@@ -59,6 +59,9 @@ func newStep3Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 		{
 			// 頂点選択時メソッド
 			toolState.RootVertexSelectedFunc = func(indexes [][][]int) {
+				// 頂点選択し直したら後続クリア
+				toolState.SetEnabled(3)
+
 				// 重複頂点を同じINDEX位置で扱う
 				indexMap := make(map[mmath.MVec3][]int)
 				for _, vertexIndex := range indexes[0][0] {
@@ -76,21 +79,33 @@ func newStep3Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 }
 
 func (toolState *ToolState) onClickStep3Clear() {
-	// 一旦選択機能OFFにして解除
-	toolState.ControlWindow.SetShowSelectedVertex(false)
-	// 再度有効
-	toolState.ControlWindow.SetShowSelectedVertex(true)
+	toolState.BlurModel.RootVertexIndexes = make([]int, 0)
+	toolState.ResetSelectedVertexIndexes(true, false, false, toolState.RootVertexListBox.GetItemValues())
 }
 
 func (toolState *ToolState) onClickStep3Ok() {
-	if len(toolState.RootVertexListBox.SelectedIndexes()) == 0 {
+	rootVertexIndexes := toolState.RootVertexListBox.GetItemValues()
+	if len(rootVertexIndexes) == 0 {
 		mlog.ILT(mi18n.T("設定失敗"), mi18n.T("Step3失敗"))
 		return
 	}
 
 	// 根元選択設定
-	toolState.BlurModel.BackRootVertexIndexes = toolState.RootVertexListBox.SelectedIndexes()
+	toolState.BlurModel.RootVertexIndexes = rootVertexIndexes
 	toolState.BlurModel.OutputModel = nil
 	toolState.BlurModel.OutputMotion = nil
 
+	// ワイヤーフレーム表示
+	toolState.ControlWindow.SetShowWire(true)
+	// 頂点選択ON
+	toolState.ControlWindow.SetShowSelectedVertex(true)
+
+	// 切っ先頂点を選択
+	toolState.ResetSelectedVertexIndexes(false, true, false, nil)
+	// 選択更新メソッド設定
+	toolState.ControlWindow.SetUpdateSelectedVertexIndexesFunc(toolState.TipVertexSelectedFunc)
+
+	toolState.ControlWindow.SetTabIndex(3) // Step4へ移動
+	toolState.SetEnabled(4)
+	mlog.IL(mi18n.T("Step3成功"))
 }

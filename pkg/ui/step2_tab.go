@@ -93,6 +93,9 @@ func (toolState *ToolState) onChangeMaterialListBox() func(indexes []int) {
 		// 	strings.ReplaceAll(toolState.BlurModel.Model.Path(), ".pmx", ".vmd"), "mat_off")
 		// repository.NewVmdRepository().Save(outputPath, toolState.BlurModel.Motion, true)
 
+		// 材質選択し直したら後続クリア
+		toolState.SetEnabled(2)
+
 		animationState := animation.NewAnimationState(0, 0)
 		animationState.SetMotion(toolState.BlurModel.Motion)
 		animationState.SetInvisibleMaterialIndexes(invisibleMaterialIndexes)
@@ -101,17 +104,24 @@ func (toolState *ToolState) onChangeMaterialListBox() func(indexes []int) {
 }
 
 func (toolState *ToolState) onClickStep2Ok() {
-	if len(toolState.MaterialListBox.SelectedIndexes()) == 0 {
+	materialIndexes := toolState.MaterialListBox.SelectedIndexes()
+	if len(materialIndexes) == 0 {
 		mlog.ILT(mi18n.T("設定失敗"), mi18n.T("Step2失敗"))
 		return
 	}
 
+	// 選択材質設定
+	toolState.BlurModel.BlurMaterialIndexes = materialIndexes
+	toolState.BlurModel.OutputModel = nil
+	toolState.BlurModel.OutputMotion = nil
+
 	// ワイヤーフレーム表示
 	toolState.ControlWindow.SetShowWire(true)
-	toolState.ControlWindow.TriggerShowWire()
 	// 頂点選択ON
 	toolState.ControlWindow.SetShowSelectedVertex(true)
-	toolState.ControlWindow.TriggerShowSelectedVertex()
+
+	// 根元選択頂点に切り替え
+	toolState.ResetSelectedVertexIndexes(true, false, false, nil)
 	toolState.ControlWindow.SetUpdateSelectedVertexIndexesFunc(toolState.RootVertexSelectedFunc)
 
 	toolState.ControlWindow.SetTabIndex(2) // Step3へ移動

@@ -109,6 +109,9 @@ func (lb *VertexListBox) AppendItem(item string) {
 }
 
 func (lb *VertexListBox) RemoveItem(index int) {
+	if len(lb.VertexListModel.items) <= index {
+		return
+	}
 	lb.VertexListModel.items = append(lb.VertexListModel.items[:index], lb.VertexListModel.items[index+1:]...)
 	lb.VertexListModel.PublishItemsRemoved(index, index)
 }
