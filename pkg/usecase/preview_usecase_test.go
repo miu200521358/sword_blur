@@ -332,3 +332,49 @@ func TestSave07(t *testing.T) {
 		t.Errorf("Expected blurMaterial.DrawFlag.IsDrawingBack() to be true, got false")
 	}
 }
+
+func TestSave08(t *testing.T) {
+	pmxRep := repository.NewPmxRepository()
+
+	data, err := pmxRep.Load("D:/MMD/MikuMikuDance_v926x64/UserFile/Model/刀剣乱舞/071_亀甲貞宗/亀甲貞宗 ピンマリ式 ver.0.93/ピンマリ式亀甲貞宗（本体）.pmx")
+	if err != nil {
+		t.Errorf("Expected error to be nil, got %q", err)
+	}
+	originalModel := data.(*pmx.PmxModel)
+
+	outputPath := "D:/MMD/MikuMikuDance_v926x64/UserFile/Model/刀剣乱舞/071_亀甲貞宗/亀甲貞宗 ピンマリ式 ver.0.93/ピンマリ式亀甲貞宗（本体）_test"
+	blurMaterialIndexes := []int{3}
+	rootVertexIndexes := []int{636}
+	tipVertexIndexes := []int{668, 721}
+	edgeVertexIndexes := []int{657, 774, 778, 780, 658, 777, 659, 776, 662, 784, 664, 785, 665, 786, 666, 787, 667, 788, 638, 789, 639, 790, 640, 791, 719, 641, 642, 792, 643, 793, 720, 644}
+
+	blurModel := &model.BlurModel{
+		OutputModel:         originalModel,
+		BlurMaterialIndexes: blurMaterialIndexes,
+		RootVertexIndexes:   rootVertexIndexes,
+		TipVertexIndexes:    tipVertexIndexes,
+		EdgeVertexIndexes:   edgeVertexIndexes,
+	}
+
+	err = usecase.Preview(blurModel)
+	if err != nil {
+		t.Errorf("Expected error to be nil, got %q", err)
+	}
+	blurModel.OutputModel.SetPath(fmt.Sprintf("%s.pmx", outputPath))
+	blurModel.OutputMotion.SetPath(fmt.Sprintf("%s_preview.vmd", outputPath))
+	usecase.Save(blurModel)
+
+	blurMaterial := blurModel.OutputModel.Materials.GetByName("刃_ブレ")
+	if blurMaterial == nil {
+		t.Errorf("Expected blurMaterial to be not nil, got nil")
+		return
+	}
+
+	if blurMaterial.DrawFlag.IsDrawingEdge() {
+		t.Errorf("Expected blurMaterial.DrawFlag.IsDrawingEdge() to be false, got true")
+	}
+
+	if !blurMaterial.DrawFlag.IsDoubleSidedDrawing() {
+		t.Errorf("Expected blurMaterial.DrawFlag.IsDrawingBack() to be true, got false")
+	}
+}
