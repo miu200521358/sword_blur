@@ -9,22 +9,23 @@ import (
 )
 
 type ToolState struct {
-	AppState          state.IAppState
-	ControlWindow     *controller.ControlWindow
-	BlurModel         *model.BlurModel
-	Step1             *widget.MTabPage
-	OriginalPmxPicker *widget.FilePicker
-	OriginalVmdPicker *widget.FilePicker
-	OutputPmxPicker   *widget.FilePicker
-	Step1OkButton     *walk.PushButton
-	Step2             *widget.MTabPage
-	MaterialListBox   *MaterialListBox
-	Step2OkButton     *walk.PushButton
-	Step2ClearButton  *walk.PushButton
-	Step3             *widget.MTabPage
-	RootVertexListBox *VertexListBox
-	Step3OkButton     *walk.PushButton
-	Step3ClearButton  *walk.PushButton
+	AppState               state.IAppState
+	ControlWindow          *controller.ControlWindow
+	BlurModel              *model.BlurModel
+	Step1                  *widget.MTabPage
+	OriginalPmxPicker      *widget.FilePicker
+	OriginalVmdPicker      *widget.FilePicker
+	OutputPmxPicker        *widget.FilePicker
+	Step1OkButton          *walk.PushButton
+	Step2                  *widget.MTabPage
+	MaterialListBox        *MaterialListBox
+	Step2OkButton          *walk.PushButton
+	Step2ClearButton       *walk.PushButton
+	Step3                  *widget.MTabPage
+	RootVertexListBox      *VertexListBox
+	Step3OkButton          *walk.PushButton
+	Step3ClearButton       *walk.PushButton
+	RootVertexSelectedFunc func([][][]int)
 }
 
 func NewToolState(appState state.IAppState, controlWindow *controller.ControlWindow) *ToolState {

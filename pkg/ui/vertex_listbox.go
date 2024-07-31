@@ -3,6 +3,7 @@ package ui
 import (
 	"slices"
 
+	"github.com/miu200521358/mlib_go/pkg/domain/mmath"
 	"github.com/miu200521358/mlib_go/pkg/mutils"
 	"github.com/miu200521358/walk/pkg/walk"
 	"github.com/miu200521358/win"
@@ -52,20 +53,52 @@ func (lb *VertexListBox) GetItemValues() []int {
 	return items
 }
 
+func (lb *VertexListBox) ReplaceItems(indexMap map[mmath.MVec3][]int) {
+	keys := make([]mmath.MVec3, 0, len(indexMap))
+	for k := range indexMap {
+		keys = append(keys, k)
+	}
+
+	// 今回追加する頂点行リストを作成
+	keyStrs := make([]string, 0, len(keys))
+	for _, key := range keys {
+		items := indexMap[key]
+		slices.Sort(items)
+		keyStrs = append(keyStrs, mutils.JoinIntsWithComma(items))
+	}
+
+	// keysにない頂点行を削除
+	existIndex := -1
+	for i, it := range lb.VertexListModel.items {
+		if slices.Contains(keyStrs, it) {
+			existIndex = i
+		}
+		if existIndex < 0 {
+			lb.RemoveItem(i)
+		}
+	}
+
+	// 現在ないキーを追加
+	for _, keyStr := range keyStrs {
+		if !slices.Contains(lb.VertexListModel.items, keyStr) {
+			lb.AppendItem(keyStr)
+		}
+	}
+}
+
 func (lb *VertexListBox) SetItem(items []int) {
 	// 順不同なのでとりあえずソート
 	slices.Sort(items)
 	// 頂点番号リストをカンマで繋ぐ
 	itemStr := mutils.JoinIntsWithComma(items)
-	isRemoved := false
+	existIndex := -1
 	for i, it := range lb.VertexListModel.items {
 		if it == itemStr {
-			lb.RemoveItem(i)
-			isRemoved = true
+			existIndex = i
 			break
 		}
 	}
-	if !isRemoved {
+	if existIndex < 0 {
 		lb.AppendItem(itemStr)
 	}
 }

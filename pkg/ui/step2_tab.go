@@ -112,6 +112,7 @@ func (toolState *ToolState) onClickStep2Ok() {
 	// 頂点選択ON
 	toolState.ControlWindow.SetShowSelectedVertex(true)
 	toolState.ControlWindow.TriggerShowSelectedVertex()
+	toolState.ControlWindow.SetUpdateSelectedVertexIndexesFunc(toolState.RootVertexSelectedFunc)
 
 	toolState.ControlWindow.SetTabIndex(2) // Step3へ移動
 	toolState.SetEnabled(3)
