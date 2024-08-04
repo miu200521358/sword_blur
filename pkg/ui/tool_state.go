@@ -56,13 +56,13 @@ func NewToolState(appState state.IAppState, controlWindow *controller.ControlWin
 
 	player := widget.NewMotionPlayer(controlWindow.MainWindow, controlWindow)
 	player.SetOnTriggerPlay(func(play bool) {
-		toolState.SetEnabled(6)
-
 		// ワイヤーフレーム切り替え
 		toolState.ControlWindow.SetShowWire(!play)
 		// 頂点選択切り替え
 		toolState.ControlWindow.SetShowSelectedVertex(!play)
 		toolState.ResetSelectedVertexIndexes(false, false, true, nil)
+
+		toolState.SetEnabled(6)
 	})
 	controlWindow.SetPlayer(player)
 

@@ -53,7 +53,9 @@ func (lb *VertexListBox) GetItemValues() []int {
 	return items
 }
 
-func (lb *VertexListBox) ReplaceItems(indexMap map[mmath.MVec3][]int) {
+func (lb *VertexListBox) ReplaceItems(indexMap map[mmath.MVec3][]int) bool {
+	isReplaced := false
+
 	keys := make([]mmath.MVec3, 0, len(indexMap))
 	for k := range indexMap {
 		keys = append(keys, k)
@@ -68,13 +70,10 @@ func (lb *VertexListBox) ReplaceItems(indexMap map[mmath.MVec3][]int) {
 	}
 
 	// keysにない頂点行を削除
-	existIndex := -1
 	for i, it := range lb.VertexListModel.items {
-		if slices.Contains(keyStrs, it) {
-			existIndex = i
-		}
-		if existIndex < 0 {
+		if !slices.Contains(keyStrs, it) {
 			lb.RemoveItem(i)
+			isReplaced = true
 		}
 	}
 
@@ -82,8 +81,11 @@ func (lb *VertexListBox) ReplaceItems(indexMap map[mmath.MVec3][]int) {
 	for _, keyStr := range keyStrs {
 		if !slices.Contains(lb.VertexListModel.items, keyStr) {
 			lb.AppendItem(keyStr)
+			isReplaced = true
 		}
 	}
+
+	return isReplaced
 }
 
 func (lb *VertexListBox) SetItem(items []int) {

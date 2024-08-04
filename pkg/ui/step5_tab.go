@@ -86,9 +86,6 @@ func newStep5Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 				return
 			}
 
-			// 頂点選択し直したら後続クリア
-			toolState.SetEnabled(5)
-
 			// 重複頂点を同じINDEX位置で扱う
 			indexMap := make(map[mmath.MVec3][]int)
 			for _, vertexIndex := range indexes[0][0] {
@@ -99,7 +96,10 @@ func newStep5Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 				indexMap[*vertex.Position] = append(indexMap[*vertex.Position], vertexIndex)
 			}
 			// 頂点リストボックス入替
-			toolState.EdgeVertexListBox.ReplaceItems(indexMap)
+			if toolState.EdgeVertexListBox.ReplaceItems(indexMap) {
+				// 頂点選択し直したら後続クリア
+				toolState.SetEnabled(5)
+			}
 		}
 	}
 }
