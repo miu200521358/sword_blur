@@ -62,12 +62,7 @@ func NewToolState(appState state.IAppState, controlWindow *controller.ControlWin
 		toolState.ControlWindow.SetShowWire(!play)
 		// 頂点選択切り替え
 		toolState.ControlWindow.SetShowSelectedVertex(!play)
-
-		if !play {
-			// リセット後に選択復活
-			toolState.BlurModel.EdgeVertexIndexes = toolState.EdgeVertexListBox.GetItemValues()
-			toolState.ResetSelectedVertexIndexes(false, false, true, nil)
-		}
+		toolState.ResetSelectedVertexIndexes(false, false, true, nil)
 	})
 	controlWindow.SetPlayer(player)
 
@@ -84,7 +79,7 @@ func NewToolState(appState state.IAppState, controlWindow *controller.ControlWin
 			toolState.ResetSelectedVertexIndexes(false, true, false, nil)
 			toolState.ControlWindow.SetUpdateSelectedVertexIndexesFunc(toolState.TipVertexSelectedFunc)
 		} else if toolState.ControlWindow.TabWidget.CurrentIndex() == 4 {
-			// 峰選択頂点に切り替え
+			// 刃選択頂点に切り替え
 			toolState.ResetSelectedVertexIndexes(false, false, true, nil)
 			toolState.ControlWindow.SetUpdateSelectedVertexIndexesFunc(toolState.EdgeVertexSelectedFunc)
 		}

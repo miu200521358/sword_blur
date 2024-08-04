@@ -82,6 +82,13 @@ func newStep5Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 	{
 		// 頂点選択時メソッド
 		toolState.EdgeVertexSelectedFunc = func(indexes [][][]int) {
+			if !toolState.ControlWindow.IsShowSelectedVertex() {
+				return
+			}
+
+			// 頂点選択し直したら後続クリア
+			toolState.SetEnabled(5)
+
 			// 重複頂点を同じINDEX位置で扱う
 			indexMap := make(map[mmath.MVec3][]int)
 			for _, vertexIndex := range indexes[0][0] {

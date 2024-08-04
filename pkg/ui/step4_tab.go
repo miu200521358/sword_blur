@@ -59,6 +59,10 @@ func newStep4Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 		{
 			// 頂点選択時メソッド
 			toolState.TipVertexSelectedFunc = func(indexes [][][]int) {
+				if !toolState.ControlWindow.IsShowSelectedVertex() {
+					return
+				}
+
 				// 頂点選択し直したら後続クリア
 				toolState.SetEnabled(4)
 
