@@ -85,9 +85,6 @@ func newStep1Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 				mi18n.T("出力モデルの使い方"))
 		}
 
-		player := widget.NewMotionPlayer(controlWindow.MainWindow, controlWindow)
-		controlWindow.SetPlayer(player)
-
 		walk.NewVSpacer(toolState.Step1)
 
 		// OKボタン

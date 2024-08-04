@@ -139,7 +139,7 @@ func createModel(
 	createTextureMorph(model, blurMaterials, &mmath.MVec4{X: 1.0, Y: 0.0, Z: 0.0, W: 0.0}, "赤", "red")
 	createTextureMorph(model, blurMaterials, &mmath.MVec4{X: 0.0, Y: 1.0, Z: 0.0, W: 0.0}, "緑", "green")
 	createTextureMorph(model, blurMaterials, &mmath.MVec4{X: 0.0, Y: 0.0, Z: 1.0, W: 0.0}, "青", "blue")
-	createSpecularMorph(model, blurMaterials, &mmath.MVec4{X: 0.0, Y: 0.0, Z: 0.0, W: 150.0}, "AL", "AL")
+	createSpecularMorph(model, blurMaterials, &mmath.MVec4{X: 0.0, Y: 0.0, Z: 0.0, W: 200.0}, "AL", "AL")
 
 	// 剛体
 	blurRootRigidBody := createBlurRootRigidBody(model, blurRootBone)

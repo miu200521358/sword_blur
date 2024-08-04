@@ -54,6 +54,23 @@ func NewToolState(appState state.IAppState, controlWindow *controller.ControlWin
 	newStep4Tab(controlWindow, toolState)
 	newStep5Tab(controlWindow, toolState)
 
+	player := widget.NewMotionPlayer(controlWindow.MainWindow, controlWindow)
+	player.SetOnTriggerPlay(func(play bool) {
+		toolState.SetEnabled(6)
+
+		// ワイヤーフレーム切り替え
+		toolState.ControlWindow.SetShowWire(!play)
+		// 頂点選択切り替え
+		toolState.ControlWindow.SetShowSelectedVertex(!play)
+
+		if !play {
+			// リセット後に選択復活
+			toolState.BlurModel.EdgeVertexIndexes = toolState.EdgeVertexListBox.GetItemValues()
+			toolState.ResetSelectedVertexIndexes(false, false, true, nil)
+		}
+	})
+	controlWindow.SetPlayer(player)
+
 	toolState.SetEnabled(1)
 
 	// タブ切り替え時に選択頂点リストボックスの更新メソッドを切り替える

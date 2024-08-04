@@ -13,90 +13,86 @@ import (
 )
 
 func newStep5Tab(controlWindow *controller.ControlWindow, toolState *ToolState) {
+
+	toolState.Step5 = widget.NewMTabPage("Step.5")
+	controlWindow.AddTabPage(toolState.Step5.TabPage)
+
+	toolState.Step5.SetLayout(walk.NewVBoxLayout())
+
 	{
-		toolState.Step5 = widget.NewMTabPage("Step.5")
-		controlWindow.AddTabPage(toolState.Step5.TabPage)
-
-		toolState.Step5.SetLayout(walk.NewVBoxLayout())
-
-		{
-			// Step5.文言
-			label, err := walk.NewTextLabel(toolState.Step5)
-			if err != nil {
-				widget.RaiseError(err)
-			}
-			label.SetText(mi18n.T("Step5Label"))
+		// Step5.文言
+		label, err := walk.NewTextLabel(toolState.Step5)
+		if err != nil {
+			widget.RaiseError(err)
 		}
+		label.SetText(mi18n.T("Step5Label"))
+	}
 
-		walk.NewVSeparator(toolState.Step5)
+	walk.NewVSeparator(toolState.Step5)
 
-		var err error
-		{
-			// クリアボタン
-			toolState.Step5ClearButton, err = walk.NewPushButton(toolState.Step5)
-			if err != nil {
-				widget.RaiseError(err)
-			}
-			toolState.Step5ClearButton.SetText(mi18n.T("クリア"))
-			toolState.Step5ClearButton.Clicked().Attach(toolState.onClickStep5Clear)
+	var err error
+	{
+		// クリアボタン
+		toolState.Step5ClearButton, err = walk.NewPushButton(toolState.Step5)
+		if err != nil {
+			widget.RaiseError(err)
 		}
+		toolState.Step5ClearButton.SetText(mi18n.T("クリア"))
+		toolState.Step5ClearButton.Clicked().Attach(toolState.onClickStep5Clear)
+	}
 
-		{
-			// 頂点選択リストボックス
-			toolState.EdgeVertexListBox, err = NewVertexListBox(toolState.Step5)
-			if err != nil {
-				widget.RaiseError(err)
-			}
+	{
+		// 頂点選択リストボックス
+		toolState.EdgeVertexListBox, err = NewVertexListBox(toolState.Step5)
+		if err != nil {
+			widget.RaiseError(err)
 		}
+	}
 
-		{
-			// プレビューボタン
-			toolState.Step5PreviewButton, err = walk.NewPushButton(toolState.Step5)
-			if err != nil {
-				widget.RaiseError(err)
-			}
-			toolState.Step5PreviewButton.SetText(mi18n.T("プレビュー"))
-			toolState.Step5PreviewButton.Clicked().Attach(toolState.onClickStep5Preview)
+	{
+		// プレビューボタン
+		toolState.Step5PreviewButton, err = walk.NewPushButton(toolState.Step5)
+		if err != nil {
+			widget.RaiseError(err)
 		}
+		toolState.Step5PreviewButton.SetText(mi18n.T("プレビュー"))
+		toolState.Step5PreviewButton.Clicked().Attach(toolState.onClickStep5Preview)
+	}
 
-		{
-			// リトライボタン
-			toolState.Step5RetryButton, err = walk.NewPushButton(toolState.Step5)
-			if err != nil {
-				widget.RaiseError(err)
-			}
-			toolState.Step5RetryButton.SetText(mi18n.T("リトライ"))
-			toolState.Step5RetryButton.Clicked().Attach(toolState.onClickStep5Retry)
+	{
+		// リトライボタン
+		toolState.Step5RetryButton, err = walk.NewPushButton(toolState.Step5)
+		if err != nil {
+			widget.RaiseError(err)
 		}
+		toolState.Step5RetryButton.SetText(mi18n.T("リトライ"))
+		toolState.Step5RetryButton.Clicked().Attach(toolState.onClickStep5Retry)
+	}
 
-		{
-			// 保存ボタン
-			toolState.Step5SaveButton, err = walk.NewPushButton(toolState.Step5)
-			if err != nil {
-				widget.RaiseError(err)
-			}
-			toolState.Step5SaveButton.SetText(mi18n.T("保存"))
-			toolState.Step5SaveButton.Clicked().Attach(toolState.onClickStep5Save)
+	{
+		// 保存ボタン
+		toolState.Step5SaveButton, err = walk.NewPushButton(toolState.Step5)
+		if err != nil {
+			widget.RaiseError(err)
 		}
+		toolState.Step5SaveButton.SetText(mi18n.T("保存"))
+		toolState.Step5SaveButton.Clicked().Attach(toolState.onClickStep5Save)
+	}
 
-		{
-			// 頂点選択時メソッド
-			toolState.EdgeVertexSelectedFunc = func(indexes [][][]int) {
-				// 頂点選択し直したら後続クリア
-				toolState.SetEnabled(5)
-
-				// 重複頂点を同じINDEX位置で扱う
-				indexMap := make(map[mmath.MVec3][]int)
-				for _, vertexIndex := range indexes[0][0] {
-					vertex := toolState.BlurModel.Model.Vertices.Get(vertexIndex)
-					if _, ok := indexMap[*vertex.Position]; !ok {
-						indexMap[*vertex.Position] = make([]int, 0)
-					}
-					indexMap[*vertex.Position] = append(indexMap[*vertex.Position], vertexIndex)
+	{
+		// 頂点選択時メソッド
+		toolState.EdgeVertexSelectedFunc = func(indexes [][][]int) {
+			// 重複頂点を同じINDEX位置で扱う
+			indexMap := make(map[mmath.MVec3][]int)
+			for _, vertexIndex := range indexes[0][0] {
+				vertex := toolState.BlurModel.Model.Vertices.Get(vertexIndex)
+				if _, ok := indexMap[*vertex.Position]; !ok {
+					indexMap[*vertex.Position] = make([]int, 0)
 				}
-				// 頂点リストボックス入替
-				toolState.EdgeVertexListBox.ReplaceItems(indexMap)
+				indexMap[*vertex.Position] = append(indexMap[*vertex.Position], vertexIndex)
 			}
+			// 頂点リストボックス入替
+			toolState.EdgeVertexListBox.ReplaceItems(indexMap)
 		}
 	}
 }
@@ -122,46 +118,28 @@ func (toolState *ToolState) onClickStep5Preview() {
 	err := usecase.Preview(toolState.BlurModel)
 	if err != nil {
 		mlog.ET(mi18n.T("生成失敗"), mi18n.T("生成失敗メッセージ", map[string]interface{}{"Error": err.Error()}))
+		return
 	} else {
 		mlog.IT(mi18n.T("生成成功"), mi18n.T("生成成功メッセージ"))
 	}
-
-	// プレビュー後ステータスに更新
-	toolState.SetEnabled(6)
-
-	// ワイヤーフレーム非表示
-	toolState.ControlWindow.SetShowWire(false)
-	// 頂点選択OFF
-	toolState.ControlWindow.SetShowSelectedVertex(false)
 
 	// プレビューウィンドウに出力モデルとモーションを設定
 	animationState := animation.NewAnimationState(1, 0)
 	animationState.SetModel(toolState.BlurModel.OutputModel)
 	animationState.SetMotion(toolState.BlurModel.OutputMotion)
 	toolState.ControlWindow.SetAnimationState(animationState)
-
 	toolState.ControlWindow.SetMaxFrame(toolState.BlurModel.OutputMotion.MaxFrame())
+
 	toolState.ControlWindow.TriggerPlay(true)
 }
 
 func (toolState *ToolState) onClickStep5Retry() {
-	// ワイヤーフレーム表示
-	toolState.ControlWindow.SetShowWire(true)
-	// 頂点選択ON
-	toolState.ControlWindow.SetShowSelectedVertex(true)
-
-	// リセット後に選択復活
-	toolState.BlurModel.EdgeVertexIndexes = toolState.EdgeVertexListBox.GetItemValues()
-	toolState.ResetSelectedVertexIndexes(false, false, true, nil)
-
-	// 戻す
-	toolState.SetEnabled(5)
-
-	toolState.BlurModel.OutputModel = nil
-	toolState.BlurModel.OutputMotion = nil
+	toolState.ControlWindow.TriggerPlay(false)
 }
 
 func (toolState *ToolState) onClickStep5Save() {
+	toolState.ControlWindow.TriggerPlay(false)
+
 	if toolState.BlurModel.OutputModel == nil {
 		mlog.IT(mi18n.T("出力モデルなし"), mi18n.T("出力モデルなしメッセージ"))
 		return
