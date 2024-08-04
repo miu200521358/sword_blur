@@ -31,3 +31,5 @@ cmd/user_config.json
 *.pmx
 *.pprof
 *.log
+
+配布/
