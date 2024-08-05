@@ -57,103 +57,103 @@
     },
     {
         "id": "Step1Label",
-        "translation": "- Please specify the Pmx model you want to apply the blur setting\n- Setting motion is optional\n- Once the model display is confirmed, click the 'Proceed to Next' button at the bottom"
+        "translation": "・Please specify the PMX model where you want to apply the blur settings.\n・Motion settings are optional.\n・After confirming the model's display, click the 'Next' button at the bottom."
     },
     {
         "id": "Step1成功",
-        "translation": "The target model for blur setting was successfully loaded.\nProceed to the Step.2 tab"
+        "translation": "The target model for blur settings has been successfully loaded.\nProceed to the Step.2 tab."
     },
     {
         "id": "Step1失敗",
-        "translation": "Failed to load the target model for blur setting.\nPlease check if the correct file path is specified"
+        "translation": "Failed to load the target model for blur settings.\nPlease confirm that the correct file path is specified."
     },
     {
         "id": "Step2Label",
-        "translation": "- Make sure that only the materials you want to apply the blur setting to are selected\n- For Japanese swords, select only the materials related to the blade"
+        "translation": "・Please ensure that only the materials you want to apply the blur settings to are selected.\n・In the case of a Japanese sword, select only the materials related to the blade."
     },
     {
         "id": "Step2成功",
-        "translation": "The target materials for blur setting have been successfully set.\nProceed to the Step.3 tab"
+        "translation": "The target material for blur settings has been successfully configured.\nProceed to the Step.3 tab."
     },
     {
         "id": "Step2失敗",
-        "translation": "No target materials for blur setting are selected.\nPlease select one or more materials you want to apply the blur setting to"
+        "translation": "The target material for blur settings has not been selected.\nPlease select at least one material for blur settings."
     },
     {
         "id": "Step3Label",
-        "translation": "- For the material you want to apply the blur setting to, select a single vertex at the starting point of the ridge.\n- For Japanese swords, this is the ridge area.\n- If there are overlapping vertices, they will be displayed separated by commas\n- If you mistakenly select a vertex, you can deselect it by pressing the Ctrl key and clicking the vertex again."
+        "translation": "・Select a single vertex at the starting point of the ridge (mune) of the material you want to apply the blur settings to.\n・In the case of a Japanese sword, this is the mune-machi area.\n・If there are overlapping vertices, they will be displayed separated by commas.\n・To deselect a mistakenly selected vertex, hold down the Ctrl key and select it again."
     },
     {
         "id": "Step3成功",
-        "translation": "The starting vertex of the ridge for blur setting has been successfully set.\nProceed to the Step.4 tab"
+        "translation": "The starting vertex for the ridge for blur settings has been successfully configured.\nProceed to the Step.4 tab."
     },
     {
         "id": "Step3失敗",
-        "translation": "No starting vertex of the ridge for blur setting is selected.\nPlease select a single vertex at the starting point of the ridge for the material you want to apply the blur setting to."
+        "translation": "The starting vertex for the ridge for blur settings has not been selected.\nPlease select a single vertex at the starting point of the ridge (mune) of the material you want to apply the blur settings to."
     },
     {
         "id": "Step4Label",
-        "translation": "- For the material you want to apply the blur setting to, select a single vertex at the tip.\n- If there are overlapping vertices, they will be displayed separated by commas\n- If you mistakenly select a vertex, you can deselect it by pressing the Ctrl key and clicking the vertex again."
+        "translation": "・Select a single vertex at the tip of the material you want to apply the blur settings to.\n・If there are overlapping vertices, they will be displayed separated by commas.\n・To deselect a mistakenly selected vertex, hold down the Ctrl key and select it again."
     },
     {
         "id": "Step4成功",
-        "translation": "The vertex at the tip for the blur setting has been successfully set.\nProceed to the Step.5 tab"
+        "translation": "The target tip vertex for blur settings has been successfully configured.\nProceed to the Step.5 tab."
     },
     {
         "id": "Step4失敗",
-        "translation": "No vertex at the tip for the blur setting is selected.\nPlease select a single vertex at the tip for the material you want to apply the blur setting to."
+        "translation": "The target tip vertex for blur settings has not been selected.\nPlease select a single vertex at the tip of the material you want to apply the blur settings to."
     },
     {
         "id": "Step5Label",
-        "translation": "- For the material you want to apply the blur setting to, select the vertices on the blade side where you want to display the blur.\n- The order of selection is arbitrary.\n- If there are overlapping vertices, they will be displayed separated by commas\n- If you mistakenly select a vertex, you can deselect it by pressing the Ctrl key and clicking the vertex again."
+        "translation": "・Select the vertices of the edge of the material you want to display as blur.\n・The order of selection is optional.\n・If there are overlapping vertices, they will be displayed separated by commas.\n・To deselect a mistakenly selected vertex, hold down the Ctrl key and select it again."
     },
     {
         "id": "Step5失敗",
-        "translation": "No vertices on the blade side for the blur setting are selected.\nPlease select the vertices on the blade side where you want to display the blur."
+        "translation": "The target edge vertices for blur settings have not been selected.\nPlease select the vertices of the edge of the material you want to display as blur."
     },
     {
         "id": "生成失敗",
-        "translation": "Generation Failed"
+        "translation": "Generation failed"
     },
     {
         "id": "生成成功",
-        "translation": "Generation Successful"
+        "translation": "Generation successful"
     },
     {
         "id": "生成失敗メッセージ",
-        "translation": "Failed to generate the model with the blur setting\nError Message: {{.Error}}"
+        "translation": "Failed to generate the model with blur settings\nError message: {{.Error}}"
     },
     {
         "id": "生成成功メッセージ",
-        "translation": "Successfully generated the model with the blur setting\nThe preview model is rotating on the original model\n\n[Things to Check]\n- Does the blur extend only on the ridge side? \n   The blur material is set to extend only on the ridge side to represent the momentum\n   (The blur material extends in the opposite direction of the downward motion)\n   Please confirm that the blur does not extend in a strange direction\n   (To make the blur part easier to understand, a red morph has been added)\n- Are there any missing vertices in the blur material? \n   The vertices on the ridge side are set to extend as blur, and the vertices on the blade side are made to follow the main body.\n   If there are holes in the blur material, it means that there are not enough vertices selected in Step.5.\n\nIf you want to change the settings, click the 'Cancel Preview and Readjust' button, the second in Step.5.\nIf there were no issues, click the 'Save' button."
+        "translation": "Successfully generated the model with blur settings\nThe preview model is spinning in the preview viewer\n\n【Content to be confirmed】\n・Is the blur extending only towards the ridge side?\n　　To indicate momentum, the blur material is set to extend only towards the ridge side.\n　　(Check that the blur material does not extend in an odd direction)\n　　(A red morph has been added to make the blur part more visible)\n・Are there any missing vertices in the blur material?\n　　The ridge-side vertices are set to extend as blur, while the edge-side vertices follow the main body.\n　　If there are holes in the blur material, it indicates a lack of selected edge vertices in Step.5.\n\nIf you want to change the settings, click the 'Cancel Preview and Adjust Again' button, the second option in Step.5.\nIf there are no issues, click the 'Save' button."
     },
     {
         "id": "出力失敗",
-        "translation": "Output Failed"
+        "translation": "Output failed"
     },
     {
         "id": "出力成功",
-        "translation": "Output Successful"
+        "translation": "Output successful"
     },
     {
         "id": "出力失敗メッセージ",
-        "translation": "Failed to output the model with the blur setting\nError Message: {{.Error}}"
+        "translation": "Failed to output the model with blur settings\nError message: {{.Error}}"
     },
     {
         "id": "出力成功メッセージ",
-        "translation": "Successfully output the model with the blur setting\nBy default, the blur material is hidden, so please add the display morph\nThe motion used for the preview is also output for reference\n\n{{.Path}}"
+        "translation": "Successfully output the model with blur settings\nBy default, the blur material is hidden, so please apply the display morph.\nThe motion used in the preview has also been output for reference.\n\n{{.Path}}"
     },
     {
         "id": "出力モデルなし",
-        "translation": "No Output Model"
+        "translation": "No output model"
     },
     {
         "id": "出力モデルなしメッセージ",
-        "translation": "No model with the blur setting available for output.\nPlease redo the preview"
+        "translation": "No output model with blur settings found.\nPlease redo the preview"
     },
     {
         "id": "設定失敗",
-        "translation": "Setting Failed"
+        "translation": "Setting failed"
     },
     {
         "id": "概要",
@@ -161,7 +161,7 @@
     },
     {
         "id": "概要メッセージ",
-        "translation": "This tool is for adding blur settings to weapons (mainly assumed to be swords).\nThe blur appears on the ridge side when the sword is swung down.\nBy default, it is hidden, and transparency is adjusted and displayed with morphs.\nAdditionally, color morphs and AL morphs are also created."
+        "translation": "This tool is used to add blur settings to weapons (mainly intended for swords).\nBlur is displayed on the ridge side when the sword is swung.\nBy default, it is hidden, and its transparency is adjusted using morphs.\nAdditionally, color morphs and AL morphs are created."
     },
     {
         "id": "Step1概要",
@@ -169,7 +169,7 @@
     },
     {
         "id": "Step1メッセージ",
-        "translation": "Set the PMX model you want to add blur settings to in the 'Model for Blur Generation' field.\nSetting the verification motion is optional.\nOnce the model is displayed correctly, click the 'Proceed to Next' button at the bottom of the screen."
+        "translation": "Please set the PMX model you want to add blur settings to in the 'Blur Target Model' field.\nSetting a confirmation motion is optional\nOnce the model is displayed correctly, click the 'Next' button at the bottom of the screen."
     },
     {
         "id": "Step2概要",
@@ -177,7 +177,7 @@
     },
     {
         "id": "Step2メッセージ",
-        "translation": "Make sure that only the materials for which you want to add blur settings are selected from all materials set in the 'Model for Blur Generation'.\nInitially, all materials are selected, and unselected ones will be hidden.\nOnce only the materials for which you want to add blur settings are displayed, click the 'Proceed to Next' button at the bottom of the screen."
+        "translation": "From all the materials set in the 'Blur Target Model', please ensure that only the materials you want to apply the blur settings to are selected.\nInitially, all materials are selected, and deselecting them will make them invisible.\nOnce only the materials you want to apply the blur settings to are visible, click the 'Next' button at the bottom of the screen."
     },
     {
         "id": "Step3概要",
@@ -185,7 +185,7 @@
     },
     {
         "id": "Step3メッセージ",
-        "translation": "From the material you want to add blur settings to, select the hand vertex on the ridge side (the hand vertex in the direction you want to extend the blur).\nBlur will be generated on the vertices from the selected root vertex towards the tip.\nWhen Step.3 is displayed, wireframe and vertex selection features are turned ON.\nOverlapping vertices (vertices at the same location) will be displayed separated by commas.\nOnce the root vertex is selected, click the 'Proceed to Next' button at the bottom of the screen."
+        "translation": "From the material you want to apply the blur settings to, select the hand vertex on the ridge side (the starting point of the blur direction).\nBlur will be generated towards the tip from the selected vertex.\nWhen Step.3 is displayed, the wireframe and vertex selection functions are enabled.\nDuplicate vertices (vertices at the same location) are displayed separated by commas.\nOnce a root vertex has been selected, click the 'Next' button at the bottom of the screen."
     },
     {
         "id": "Step4概要",
@@ -193,7 +193,7 @@
     },
     {
         "id": "Step4メッセージ",
-        "translation": "Select the tip (end point of the blur) vertex from the materials you want to add blur settings to.\nWhen Step.4 is displayed, wireframe and vertex selection features are turned ON.\nOverlapping vertices (vertices at the same location) will be displayed separated by commas.\nOnce the tip vertex is selected, click the 'Proceed to Next' button at the bottom of the screen."
+        "translation": "From the material you want to apply the blur settings to, select the tip vertex (the endpoint of the blur).\nWhen Step.4 is displayed, the wireframe and vertex selection functions are enabled.\nDuplicate vertices (vertices at the same location) are displayed separated by commas.\nOnce a tip vertex has been selected, click the 'Next' button at the bottom of the screen."
     },
     {
         "id": "Step5概要",
@@ -201,7 +201,7 @@
     },
     {
         "id": "Step5メッセージ",
-        "translation": "From the materials you want to add blur settings to, select the vertices on the blade side where you want to display the blur.\nBlur material will be generated on the vertices between the ridge vertex selected in Step.3, the tip vertex selected in Step.4, and the blade vertices selected here.\nThe order of selection is arbitrary.\nOnce the selection of blade vertices is complete, click the 'Preview' button at the bottom of the screen."
+        "translation": "From the material you want to apply the blur settings to, select the edge vertices where you want the blur to appear.\nThe vertices selected will be used to generate the blur material between the ridge vertex chosen in Step.3 and the tip vertex chosen in Step.4.\nThe order of selection is optional.\nOnce the edge vertices selection is complete, click the 'Confirm with Preview' button at the bottom of the screen."
     },
     {
         "id": "Step5プレビュー概要",
@@ -209,6 +209,6 @@
     },
     {
         "id": "Step5プレビューメッセージ",
-        "translation": "Click the 'Preview' button to display the model with the added blur on top of the original model.\n(For camera operation, refer to Menu > Viewer > Instructions)\n\n[Things to Check]\n- Does the blur extend only on the ridge side? \n   The blur material is set to extend only on the ridge side to represent the momentum\n   (The blur material extends in the opposite direction of the downward motion)\n   Please confirm that the blur does not extend in a strange direction\n   (To make the blur part easier to understand, a red morph has been added)\n- Are there any missing vertices in the blur material? \n   The vertices on the ridge side are set to extend as blur, and the vertices on the blade side are made to follow the main body.\n   If there are holes in the blur material, it means that there are not enough vertices selected in Step.5.\n\nIf you want to change the settings, click the 'Cancel Preview and Readjust' button, the second in Step.5.\n(Although you can edit during the preview, new settings will not be reflected unless you click the 'Preview' button)\nIf there were no issues, click the 'Save' button."
+        "translation": "Click the 'Confirm with Preview' button to display the model with blur settings added in the preview viewer.\n(Refer to Menu > Viewer > Usage for how to operate the camera)\n\n【Content to be confirmed】\n・Is the blur extending only towards the ridge side?\n　　To indicate momentum, the blur material is set to extend only towards the ridge side.\n　　(Check that the blur material does not extend in an odd direction)\n　　(A red morph has been added to make the blur part more visible)\n・Are there any missing vertices in the blur material?\n　　The ridge-side vertices are set to extend as blur, while the edge-side vertices follow the main body.\n　　If there are holes in the blur material, it indicates a lack of selected edge vertices in Step.5.\n\nIf you want to change the settings, click the 'Cancel Preview and Adjust Again' button, the second option in Step.5.\nIf there are no issues, click the 'Save' button."
     }
 ]
