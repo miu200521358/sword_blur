@@ -15,3 +15,7 @@ SwordBlur_1.0.0_beta_04
 SwordBlur_1.0.0_beta_05
 ・リドミ追加
 ・panic発生時のメッセージにアプリ名とバージョン追加
+
+SwordBlur_1.0.0_beta_06
+・翻訳ファイル再生成
+

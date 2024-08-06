@@ -21,8 +21,8 @@ Please take a moment to review the following before using it.
 Å°Å@Summary
 ----------------------------------------------------------------
 
-This tool allows you to add blur settings to a model using PmxEditor, specifically when moving a sword.
-It is mainly intended for Japanese swords, but there are no restrictions on model loading, so you can try it with any model you like.
+This tool allows you to add a setting for blade blur that occurs when a sword is moved to a model.
+It is mainly designed for Japanese swords, but since there are no restrictions on loading models, you can try it with any model you like.
 
 [Important Notes]
 
