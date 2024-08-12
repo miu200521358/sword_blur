@@ -46,13 +46,12 @@ func main() {
 	mi18n.Initialize(appI18nFiles)
 
 	mApp := app.NewMApp(appConfig)
-
-	controlState := controller.NewControlState(mApp)
-	controlState.Run()
+	mApp.RunViewerToControlChannel()
+	mApp.RunControlToViewerChannel()
 
 	go func() {
 		// 操作ウィンドウは別スレッドで起動
-		controlWindow := controller.NewControlWindow(appConfig, controlState, ui.GetMenuItems, 2)
+		controlWindow := controller.NewControlWindow(appConfig, mApp.ControlToViewerChannel(), ui.GetMenuItems, 2)
 		mApp.SetControlWindow(controlWindow)
 
 		controlWindow.InitTabWidget()
@@ -61,15 +60,15 @@ func main() {
 		consoleView := widget.NewConsoleView(controlWindow.MainWindow, 256, 50)
 		log.SetOutput(consoleView)
 
-		mApp.ControllerRun()
+		mApp.RunController()
 	}()
 
-	mApp.AddViewWindow(viewer.NewViewWindow(mApp.ViewerCount(), appConfig, mApp, "メインビューワー", nil))
-	mApp.AddViewWindow(viewer.NewViewWindow(mApp.ViewerCount(), appConfig, mApp, "プレビュービューワー", mApp.MainViewWindow().GetWindow()))
-
-	mApp.ExtendAnimationState(0, 0)
-	mApp.ExtendAnimationState(1, 0)
+	mApp.AddViewWindow(viewer.NewViewWindow(
+		mApp.ViewerCount(), appConfig, mApp, mApp.ViewerToControlChannel(), "メインビューワー", nil))
+	mApp.AddViewWindow(viewer.NewViewWindow(
+		mApp.ViewerCount(), appConfig, mApp, mApp.ViewerToControlChannel(), "プレビュービューワー",
+		mApp.MainViewWindow().GetWindow()))
 
 	mApp.Center()
-	mApp.ViewerRun()
+	mApp.RunViewer()
 }

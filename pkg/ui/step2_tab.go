@@ -1,10 +1,11 @@
 package ui
 
 import (
+	"fmt"
+	"math/rand"
 	"slices"
 
 	"github.com/miu200521358/mlib_go/pkg/domain/vmd"
-	"github.com/miu200521358/mlib_go/pkg/infrastructure/animation"
 	"github.com/miu200521358/mlib_go/pkg/interface/controller"
 	"github.com/miu200521358/mlib_go/pkg/interface/controller/widget"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mi18n"
@@ -87,6 +88,8 @@ func (toolState *ToolState) onChangeMaterialListBox() func(indexes []int) {
 				invisibleMaterialIndexes = append(invisibleMaterialIndexes, i)
 			}
 			toolState.BlurModel.Motion.AppendRegisteredMorphFrame(usecase.GetVisibleMorphName(material), mf)
+			// 強制的にモーション更新するようハッシュ更新
+			toolState.BlurModel.Motion.SetHash(fmt.Sprintf("%d", rand.Intn(20)))
 		}
 
 		// outputPath := mutils.CreateOutputPath(
@@ -95,11 +98,8 @@ func (toolState *ToolState) onChangeMaterialListBox() func(indexes []int) {
 
 		// 材質選択し直したら後続クリア
 		toolState.SetEnabled(2)
-
-		animationState := animation.NewAnimationState(0, 0)
-		animationState.SetMotion(toolState.BlurModel.Motion)
-		animationState.SetInvisibleMaterialIndexes(invisibleMaterialIndexes)
-		toolState.ControlWindow.SetAnimationState(animationState)
+		// 非表示材質設定
+		toolState.ControlWindow.ChannelState().SetInvisibleMaterialsChannel([][][]int{{invisibleMaterialIndexes}})
 	}
 }
 

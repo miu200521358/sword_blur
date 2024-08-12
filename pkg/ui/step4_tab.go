@@ -109,7 +109,7 @@ func (toolState *ToolState) onClickStep4Ok() {
 	// 選択更新メソッド設定
 	toolState.ControlWindow.SetUpdateSelectedVertexIndexesFunc(toolState.EdgeVertexSelectedFunc)
 
-	toolState.ControlWindow.TriggerPlay(false)
+	toolState.ControlWindow.ChannelState().SetPlayingChannel(false)
 
 	toolState.ControlWindow.SetTabIndex(4) // Step5へ移動
 	toolState.SetEnabled(5)

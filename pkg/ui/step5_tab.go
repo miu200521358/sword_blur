@@ -3,7 +3,6 @@ package ui
 import (
 	"github.com/miu200521358/mlib_go/pkg/domain/mmath"
 	"github.com/miu200521358/mlib_go/pkg/domain/pmx"
-	"github.com/miu200521358/mlib_go/pkg/infrastructure/animation"
 	"github.com/miu200521358/mlib_go/pkg/interface/controller"
 	"github.com/miu200521358/mlib_go/pkg/interface/controller/widget"
 	"github.com/miu200521358/mlib_go/pkg/mutils/mi18n"
@@ -130,22 +129,15 @@ func (toolState *ToolState) onClickStep5Preview() {
 		mlog.IT(mi18n.T("生成成功"), mi18n.T("生成成功メッセージ"))
 	}
 
-	// プレビューウィンドウに出力モデルとモーションを設定
-	animationState := animation.NewAnimationState(1, 0)
-	animationState.SetModel(toolState.BlurModel.OutputModel)
-	animationState.SetMotion(toolState.BlurModel.OutputMotion)
-	toolState.ControlWindow.SetAnimationState(animationState)
-	toolState.ControlWindow.SetMaxFrame(toolState.BlurModel.OutputMotion.MaxFrame())
-
-	toolState.ControlWindow.TriggerPlay(true)
+	toolState.ControlWindow.ChannelState().SetPlayingChannel(true)
 }
 
 func (toolState *ToolState) onClickStep5Retry() {
-	toolState.ControlWindow.TriggerPlay(false)
+	toolState.ControlWindow.ChannelState().SetPlayingChannel(false)
 }
 
 func (toolState *ToolState) onClickStep5Save() {
-	toolState.ControlWindow.TriggerPlay(false)
+	toolState.ControlWindow.ChannelState().SetPlayingChannel(false)
 
 	if toolState.BlurModel.OutputModel == nil {
 		mlog.IT(mi18n.T("出力モデルなし"), mi18n.T("出力モデルなしメッセージ"))

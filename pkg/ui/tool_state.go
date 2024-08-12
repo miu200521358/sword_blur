@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"github.com/miu200521358/mlib_go/pkg/infrastructure/animation"
 	"github.com/miu200521358/mlib_go/pkg/infrastructure/state"
 	"github.com/miu200521358/mlib_go/pkg/interface/controller"
 	"github.com/miu200521358/mlib_go/pkg/interface/controller/widget"
@@ -112,10 +111,7 @@ func (toolState *ToolState) ResetSelectedVertexIndexes(
 		noSelectedIndexes = append(noSelectedIndexes, addNoSelectedIndexes...)
 	}
 
-	animationState := animation.NewAnimationState(0, 0)
-	animationState.SetSelectedVertexIndexes(selectedIndexes)
-	animationState.SetNoSelectedVertexIndexes(noSelectedIndexes)
-	toolState.ControlWindow.SetAnimationState(animationState)
+	toolState.ControlWindow.ChannelState().SetSelectedVertexIndexesChannel([][][]int{{selectedIndexes}})
 }
 
 func (toolState *ToolState) SetEnabled(step int) {
