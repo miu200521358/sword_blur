@@ -89,7 +89,7 @@ func (toolState *ToolState) onChangeMaterialListBox() func(indexes []int) {
 			}
 			toolState.BlurModel.Motion.AppendRegisteredMorphFrame(usecase.GetVisibleMorphName(material), mf)
 			// 強制的にモーション更新するようハッシュ更新
-			toolState.BlurModel.Motion.SetHash(fmt.Sprintf("%d", rand.Intn(20)))
+			toolState.BlurModel.Motion.SetHash(fmt.Sprintf("%d", rand.Intn(10000)))
 		}
 
 		// outputPath := mutils.CreateOutputPath(
@@ -123,7 +123,7 @@ func (toolState *ToolState) onClickStep2Ok() {
 	// 根元選択頂点に切り替え
 	toolState.ResetSelectedVertexes(true, false, false, nil)
 	// 選択更新メソッド設定
-	toolState.ControlWindow.SetUpdateSelectedVertexesFunc(toolState.RootVertexSelectedFunc)
+	toolState.ControlWindow.SetFuncSetSelectedVertexes(toolState.RootVertexSelectedFunc)
 
 	toolState.ControlWindow.SetTabIndex(2) // Step3へ移動
 	toolState.SetEnabled(3)

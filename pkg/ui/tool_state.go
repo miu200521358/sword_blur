@@ -11,6 +11,7 @@ import (
 type ToolState struct {
 	App                    *app.MApp
 	ControlWindow          *controller.ControlWindow
+	Player                 *widget.MotionPlayer
 	BlurModel              *model.BlurModel
 	Step1                  *widget.MTabPage
 	OriginalPmxPicker      *widget.FilePicker
@@ -55,15 +56,10 @@ func NewToolState(app *app.MApp, controlWindow *controller.ControlWindow) *ToolS
 
 	player := widget.NewMotionPlayer(controlWindow.MainWindow, controlWindow)
 	player.SetOnTriggerPlay(func(play bool) {
-		// ワイヤーフレーム切り替え
-		toolState.ControlWindow.SetShowWire(!play)
-		// 頂点選択切り替え
-		toolState.ControlWindow.SetShowSelectedVertex(!play)
-		toolState.ResetSelectedVertexes(false, false, true, nil)
-
 		toolState.SetEnabled(6)
 	})
 	controlWindow.SetPlayer(player)
+	toolState.Player = player
 
 	toolState.SetEnabled(1)
 
@@ -72,15 +68,15 @@ func NewToolState(app *app.MApp, controlWindow *controller.ControlWindow) *ToolS
 		if toolState.ControlWindow.TabWidget.CurrentIndex() == 2 {
 			// 根元選択頂点に切り替え
 			toolState.ResetSelectedVertexes(true, false, false, nil)
-			toolState.ControlWindow.SetUpdateSelectedVertexesFunc(toolState.RootVertexSelectedFunc)
+			toolState.ControlWindow.SetFuncSetSelectedVertexes(toolState.RootVertexSelectedFunc)
 		} else if toolState.ControlWindow.TabWidget.CurrentIndex() == 3 {
 			// 切っ先選択頂点に切り替え
 			toolState.ResetSelectedVertexes(false, true, false, nil)
-			toolState.ControlWindow.SetUpdateSelectedVertexesFunc(toolState.TipVertexSelectedFunc)
+			toolState.ControlWindow.SetFuncSetSelectedVertexes(toolState.TipVertexSelectedFunc)
 		} else if toolState.ControlWindow.TabWidget.CurrentIndex() == 4 {
 			// 刃選択頂点に切り替え
 			toolState.ResetSelectedVertexes(false, false, true, nil)
-			toolState.ControlWindow.SetUpdateSelectedVertexesFunc(toolState.EdgeVertexSelectedFunc)
+			toolState.ControlWindow.SetFuncSetSelectedVertexes(toolState.EdgeVertexSelectedFunc)
 		}
 	})
 

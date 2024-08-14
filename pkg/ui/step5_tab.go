@@ -96,6 +96,8 @@ func newStep5Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 			}
 			// 頂点リストボックス入替
 			if toolState.EdgeVertexListBox.ReplaceItems(indexMap) {
+				// 選択頂点INDEX更新
+				toolState.BlurModel.EdgeVertexIndexes = make([]int, 0)
 				// 頂点選択し直したら後続クリア
 				toolState.SetEnabled(5)
 			}
@@ -118,10 +120,11 @@ func (toolState *ToolState) onClickStep5Preview() {
 	// 根元選択設定
 	toolState.BlurModel.EdgeVertexIndexes = edgeVertexIndexes
 	// 出力用モデルを別で読み込み
-	toolState.BlurModel.OutputModel = toolState.OriginalPmxPicker.LoadForce().(*pmx.PmxModel)
-	toolState.BlurModel.OutputMotion = nil
+	outputModel := toolState.OriginalPmxPicker.LoadForce().(*pmx.PmxModel)
 
-	err := usecase.Preview(toolState.BlurModel)
+	var err error
+	toolState.BlurModel.OutputModel, toolState.BlurModel.OutputMotion, err = usecase.Preview(
+		toolState.BlurModel, outputModel)
 	if err != nil {
 		mlog.ET(mi18n.T("生成失敗"), mi18n.T("生成失敗メッセージ", map[string]interface{}{"Error": err.Error()}))
 		return
@@ -129,15 +132,29 @@ func (toolState *ToolState) onClickStep5Preview() {
 		mlog.IT(mi18n.T("生成成功"), mi18n.T("生成成功メッセージ"))
 	}
 
-	toolState.ControlWindow.ChannelState().SetPlayingChannel(true)
+	toolState.ControlWindow.UpdateMaxFrame(toolState.BlurModel.OutputMotion.MaxFrame())
+
+	// ワイヤーフレーム非表示
+	toolState.ControlWindow.SetShowWire(false)
+	// 頂点選択OFF
+	toolState.ControlWindow.SetShowSelectedVertex(false)
+
+	// 再生ON
+	toolState.Player.SetPlaying(true)
 }
 
 func (toolState *ToolState) onClickStep5Retry() {
-	toolState.ControlWindow.ChannelState().SetPlayingChannel(false)
+	// ワイヤーフレーム切り替え
+	toolState.ControlWindow.SetShowWire(true)
+	// 頂点選択切り替え
+	toolState.ControlWindow.SetShowSelectedVertex(true)
+	toolState.ResetSelectedVertexes(false, false, true, nil)
+	// 再生停止
+	toolState.Player.SetPlaying(false)
 }
 
 func (toolState *ToolState) onClickStep5Save() {
-	toolState.ControlWindow.ChannelState().SetPlayingChannel(false)
+	toolState.Player.SetPlaying(false)
 
 	if toolState.BlurModel.OutputModel == nil {
 		mlog.IT(mi18n.T("出力モデルなし"), mi18n.T("出力モデルなしメッセージ"))

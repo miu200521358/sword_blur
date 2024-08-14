@@ -62,9 +62,6 @@ func newStep4Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 				return
 			}
 
-			// 頂点選択し直したら後続クリア
-			toolState.SetEnabled(4)
-
 			// 重複頂点を同じINDEX位置で扱う
 			indexMap := make(map[mmath.MVec3][]int)
 			for _, vertexIndex := range indexes[0][0] {
@@ -75,7 +72,12 @@ func newStep4Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 				indexMap[*vertex.Position] = append(indexMap[*vertex.Position], vertexIndex)
 			}
 			// 頂点リストボックス入替
-			toolState.TipVertexListBox.ReplaceItems(indexMap)
+			if toolState.TipVertexListBox.ReplaceItems(indexMap) {
+				// 選択頂点INDEX更新
+				toolState.BlurModel.TipVertexIndexes = make([]int, 0)
+				// 頂点選択し直したら後続クリア
+				toolState.SetEnabled(4)
+			}
 		}
 	}
 }
@@ -105,7 +107,7 @@ func (toolState *ToolState) onClickStep4Ok() {
 	// 切っ先頂点を選択
 	toolState.ResetSelectedVertexes(false, false, true, nil)
 	// 選択更新メソッド設定
-	toolState.ControlWindow.SetUpdateSelectedVertexesFunc(toolState.EdgeVertexSelectedFunc)
+	toolState.ControlWindow.SetFuncSetSelectedVertexes(toolState.EdgeVertexSelectedFunc)
 
 	toolState.ControlWindow.ChannelState().SetPlayingChannel(false)
 

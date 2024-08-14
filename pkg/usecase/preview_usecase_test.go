@@ -34,7 +34,7 @@ func TestSave01(t *testing.T) {
 		EdgeVertexIndexes:   edgeVertexIndexes,
 	}
 
-	err = usecase.Preview(blurModel)
+	blurModel.OutputModel, blurModel.OutputMotion, err = usecase.Preview(blurModel, originalModel)
 	if err != nil {
 		t.Errorf("Expected error to be nil, got %q", err)
 	}
@@ -80,7 +80,7 @@ func TestSave02(t *testing.T) {
 		EdgeVertexIndexes:   edgeVertexIndexes,
 	}
 
-	err = usecase.Preview(blurModel)
+	blurModel.OutputModel, blurModel.OutputMotion, err = usecase.Preview(blurModel, originalModel)
 	if err != nil {
 		t.Errorf("Expected error to be nil, got %q", err)
 	}
@@ -126,7 +126,7 @@ func TestSave03(t *testing.T) {
 		EdgeVertexIndexes:   edgeVertexIndexes,
 	}
 
-	err = usecase.Preview(blurModel)
+	blurModel.OutputModel, blurModel.OutputMotion, err = usecase.Preview(blurModel, originalModel)
 	if err != nil {
 		t.Errorf("Expected error to be nil, got %q", err)
 	}
@@ -172,7 +172,7 @@ func TestSave04(t *testing.T) {
 		EdgeVertexIndexes:   edgeVertexIndexes,
 	}
 
-	err = usecase.Preview(blurModel)
+	blurModel.OutputModel, blurModel.OutputMotion, err = usecase.Preview(blurModel, originalModel)
 	if err != nil {
 		t.Errorf("Expected error to be nil, got %q", err)
 	}
@@ -218,7 +218,7 @@ func TestSave05(t *testing.T) {
 		EdgeVertexIndexes:   edgeVertexIndexes,
 	}
 
-	err = usecase.Preview(blurModel)
+	blurModel.OutputModel, blurModel.OutputMotion, err = usecase.Preview(blurModel, originalModel)
 	if err != nil {
 		t.Errorf("Expected error to be nil, got %q", err)
 	}
@@ -264,7 +264,7 @@ func TestSave06(t *testing.T) {
 		EdgeVertexIndexes:   edgeVertexIndexes,
 	}
 
-	err = usecase.Preview(blurModel)
+	blurModel.OutputModel, blurModel.OutputMotion, err = usecase.Preview(blurModel, originalModel)
 	if err != nil {
 		t.Errorf("Expected error to be nil, got %q", err)
 	}
@@ -310,7 +310,7 @@ func TestSave07(t *testing.T) {
 		EdgeVertexIndexes:   edgeVertexIndexes,
 	}
 
-	err = usecase.Preview(blurModel)
+	blurModel.OutputModel, blurModel.OutputMotion, err = usecase.Preview(blurModel, originalModel)
 	if err != nil {
 		t.Errorf("Expected error to be nil, got %q", err)
 	}
@@ -356,7 +356,7 @@ func TestSave08(t *testing.T) {
 		EdgeVertexIndexes:   edgeVertexIndexes,
 	}
 
-	err = usecase.Preview(blurModel)
+	blurModel.OutputModel, blurModel.OutputMotion, err = usecase.Preview(blurModel, originalModel)
 	if err != nil {
 		t.Errorf("Expected error to be nil, got %q", err)
 	}

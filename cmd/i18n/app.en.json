@@ -105,7 +105,7 @@
     },
     {
         "id": "Step5Label",
-        "translation": "・Select the vertices of the edge of the material you want to display as blur.\n・The order of selection is optional.\n・If there are overlapping vertices, they will be displayed separated by commas.\n・To deselect a mistakenly selected vertex, hold down the Ctrl key and select it again."
+        "translation": "・Please select the vertices of the blade part that you want to display as a blur on the material where you want to apply the blur setting.\n・The order of selection is optional. Vertices already selected in Steps 3 and 4 do not need to be selected.\n・If there are vertices that overlap in position, they will be displayed separated by commas.\n・If you mistakenly select a vertex, you can deselect it by selecting it again while holding down the Ctrl key."
     },
     {
         "id": "Step5失敗",

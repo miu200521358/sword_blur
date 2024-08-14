@@ -13,20 +13,19 @@ import (
 )
 
 // ブレ設定入りモデル出力処理
-func Preview(blurModel *model.BlurModel) error {
-	outputModel, blurRootBone, blurBone := createModel(blurModel.OutputModel, blurModel.BlurMaterialIndexes,
+func Preview(blurModel *model.BlurModel, model *pmx.PmxModel) (*pmx.PmxModel, *vmd.VmdMotion, error) {
+	outputModel, blurRootBone, blurBone := createModel(model, blurModel.BlurMaterialIndexes,
 		blurModel.RootVertexIndexes, blurModel.EdgeVertexIndexes, blurModel.EdgeVertexIndexes)
 	outputModel.SetPath(blurModel.OutputModelPath)
 	outputModel.Setup()
-	// ハッシュ値を被らないよう設定
-	outputModel.SetHash(fmt.Sprintf("%d", rand.Intn(20)))
 
 	previewVmd := createPreviewVmd(outputModel, blurRootBone, blurBone)
 
-	blurModel.OutputModel = outputModel
-	blurModel.OutputMotion = previewVmd
+	// ハッシュ値を被らないよう設定
+	outputModel.SetHash(fmt.Sprintf("%d", rand.Intn(10000)))
+	previewVmd.SetHash(fmt.Sprintf("%d", rand.Intn(10000)))
 
-	return nil
+	return outputModel, previewVmd, nil
 }
 
 func createPreviewVmd(outputModel *pmx.PmxModel, blurRootBone, blurBone *pmx.Bone) *vmd.VmdMotion {
