@@ -10,81 +10,79 @@ import (
 )
 
 func newStep4Tab(controlWindow *controller.ControlWindow, toolState *ToolState) {
+	toolState.Step4 = widget.NewMTabPage("Step.4")
+	controlWindow.AddTabPage(toolState.Step4.TabPage)
+
+	toolState.Step4.SetLayout(walk.NewVBoxLayout())
+
 	{
-		toolState.Step4 = widget.NewMTabPage("Step.4")
-		controlWindow.AddTabPage(toolState.Step4.TabPage)
-
-		toolState.Step4.SetLayout(walk.NewVBoxLayout())
-
-		{
-			// Step4.文言
-			label, err := walk.NewTextLabel(toolState.Step4)
-			if err != nil {
-				widget.RaiseError(err)
-			}
-			label.SetText(mi18n.T("Step4Label"))
+		// Step4.文言
+		label, err := walk.NewTextLabel(toolState.Step4)
+		if err != nil {
+			widget.RaiseError(err)
 		}
+		label.SetText(mi18n.T("Step4Label"))
+	}
 
-		walk.NewVSeparator(toolState.Step4)
+	walk.NewVSeparator(toolState.Step4)
 
-		var err error
-		{
-			// クリアボタン
-			toolState.Step4ClearButton, err = walk.NewPushButton(toolState.Step4)
-			if err != nil {
-				widget.RaiseError(err)
-			}
-			toolState.Step4ClearButton.SetText(mi18n.T("クリア"))
-			toolState.Step4ClearButton.Clicked().Attach(toolState.onClickStep4Clear)
+	var err error
+	{
+		// クリアボタン
+		toolState.Step4ClearButton, err = walk.NewPushButton(toolState.Step4)
+		if err != nil {
+			widget.RaiseError(err)
 		}
+		toolState.Step4ClearButton.SetText(mi18n.T("クリア"))
+		toolState.Step4ClearButton.Clicked().Attach(toolState.onClickStep4Clear)
+	}
 
-		{
-			// 頂点選択リストボックス
-			toolState.TipVertexListBox, err = NewVertexListBox(toolState.Step4)
-			if err != nil {
-				widget.RaiseError(err)
-			}
+	{
+		// 頂点選択リストボックス
+		toolState.TipVertexListBox, err = NewVertexListBox(toolState.Step4)
+		if err != nil {
+			widget.RaiseError(err)
 		}
+	}
 
-		{
-			// OKボタン
-			toolState.Step4OkButton, err = walk.NewPushButton(toolState.Step4)
-			if err != nil {
-				widget.RaiseError(err)
-			}
-			toolState.Step4OkButton.SetText(mi18n.T("次へ進む"))
-			toolState.Step4OkButton.Clicked().Attach(toolState.onClickStep4Ok)
+	{
+		// OKボタン
+		toolState.Step4OkButton, err = walk.NewPushButton(toolState.Step4)
+		if err != nil {
+			widget.RaiseError(err)
 		}
+		toolState.Step4OkButton.SetText(mi18n.T("次へ進む"))
+		toolState.Step4OkButton.Clicked().Attach(toolState.onClickStep4Ok)
+	}
 
-		{
-			// 頂点選択時メソッド
-			toolState.TipVertexSelectedFunc = func(indexes [][][]int) {
-				if !toolState.ControlWindow.IsShowSelectedVertex() {
-					return
+	{
+		// 頂点選択時メソッド
+		toolState.TipVertexSelectedFunc = func(indexes [][][]int) {
+			if !toolState.ControlWindow.IsShowSelectedVertex() {
+				return
+			}
+
+			// 頂点選択し直したら後続クリア
+			toolState.SetEnabled(4)
+
+			// 重複頂点を同じINDEX位置で扱う
+			indexMap := make(map[mmath.MVec3][]int)
+			for _, vertexIndex := range indexes[0][0] {
+				vertex := toolState.BlurModel.Model.Vertices.Get(vertexIndex)
+				if _, ok := indexMap[*vertex.Position]; !ok {
+					indexMap[*vertex.Position] = make([]int, 0)
 				}
-
-				// 頂点選択し直したら後続クリア
-				toolState.SetEnabled(4)
-
-				// 重複頂点を同じINDEX位置で扱う
-				indexMap := make(map[mmath.MVec3][]int)
-				for _, vertexIndex := range indexes[0][0] {
-					vertex := toolState.BlurModel.Model.Vertices.Get(vertexIndex)
-					if _, ok := indexMap[*vertex.Position]; !ok {
-						indexMap[*vertex.Position] = make([]int, 0)
-					}
-					indexMap[*vertex.Position] = append(indexMap[*vertex.Position], vertexIndex)
-				}
-				// 頂点リストボックス入替
-				toolState.TipVertexListBox.ReplaceItems(indexMap)
+				indexMap[*vertex.Position] = append(indexMap[*vertex.Position], vertexIndex)
 			}
+			// 頂点リストボックス入替
+			toolState.TipVertexListBox.ReplaceItems(indexMap)
 		}
 	}
 }
 
 func (toolState *ToolState) onClickStep4Clear() {
 	toolState.BlurModel.TipVertexIndexes = make([]int, 0)
-	toolState.ResetSelectedVertexIndexes(false, true, false, toolState.TipVertexListBox.GetItemValues())
+	toolState.ResetSelectedVertexes(false, true, false, toolState.TipVertexListBox.GetItemValues())
 }
 
 func (toolState *ToolState) onClickStep4Ok() {
@@ -105,9 +103,9 @@ func (toolState *ToolState) onClickStep4Ok() {
 	toolState.ControlWindow.SetShowSelectedVertex(true)
 
 	// 切っ先頂点を選択
-	toolState.ResetSelectedVertexIndexes(false, false, true, nil)
+	toolState.ResetSelectedVertexes(false, false, true, nil)
 	// 選択更新メソッド設定
-	toolState.ControlWindow.SetUpdateSelectedVertexIndexesFunc(toolState.EdgeVertexSelectedFunc)
+	toolState.ControlWindow.SetUpdateSelectedVertexesFunc(toolState.EdgeVertexSelectedFunc)
 
 	toolState.ControlWindow.ChannelState().SetPlayingChannel(false)
 

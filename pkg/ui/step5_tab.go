@@ -105,7 +105,7 @@ func newStep5Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 
 func (toolState *ToolState) onClickStep5Clear() {
 	toolState.BlurModel.EdgeVertexIndexes = make([]int, 0)
-	toolState.ResetSelectedVertexIndexes(false, false, true, toolState.EdgeVertexListBox.GetItemValues())
+	toolState.ResetSelectedVertexes(false, false, true, toolState.EdgeVertexListBox.GetItemValues())
 }
 
 func (toolState *ToolState) onClickStep5Preview() {

@@ -98,7 +98,7 @@ func newStep1Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 		toolState.Step1OkButton.Clicked().Attach(toolState.onClickStep1Ok)
 	}
 
-	toolState.AppState.SetFuncGetModels(
+	toolState.App.SetFuncGetModels(
 		func() [][]*pmx.PmxModel {
 			return [][]*pmx.PmxModel{
 				{toolState.BlurModel.Model},
@@ -107,7 +107,7 @@ func newStep1Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 		},
 	)
 
-	toolState.AppState.SetFuncGetMotions(
+	toolState.App.SetFuncGetMotions(
 		func() [][]*vmd.VmdMotion {
 			return [][]*vmd.VmdMotion{
 				{toolState.BlurModel.Motion},

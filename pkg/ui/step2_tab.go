@@ -121,8 +121,9 @@ func (toolState *ToolState) onClickStep2Ok() {
 	toolState.ControlWindow.SetShowSelectedVertex(true)
 
 	// 根元選択頂点に切り替え
-	toolState.ResetSelectedVertexIndexes(true, false, false, nil)
-	toolState.ControlWindow.SetUpdateSelectedVertexIndexesFunc(toolState.RootVertexSelectedFunc)
+	toolState.ResetSelectedVertexes(true, false, false, nil)
+	// 選択更新メソッド設定
+	toolState.ControlWindow.SetUpdateSelectedVertexesFunc(toolState.RootVertexSelectedFunc)
 
 	toolState.ControlWindow.SetTabIndex(2) // Step3へ移動
 	toolState.SetEnabled(3)

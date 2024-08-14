@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"github.com/miu200521358/mlib_go/pkg/infrastructure/state"
+	"github.com/miu200521358/mlib_go/pkg/interface/app"
 	"github.com/miu200521358/mlib_go/pkg/interface/controller"
 	"github.com/miu200521358/mlib_go/pkg/interface/controller/widget"
 	"github.com/miu200521358/sword_blur/pkg/model"
@@ -9,7 +9,7 @@ import (
 )
 
 type ToolState struct {
-	AppState               state.IAppState
+	App                    *app.MApp
 	ControlWindow          *controller.ControlWindow
 	BlurModel              *model.BlurModel
 	Step1                  *widget.MTabPage
@@ -40,9 +40,9 @@ type ToolState struct {
 	EdgeVertexSelectedFunc func([][][]int)
 }
 
-func NewToolState(appState state.IAppState, controlWindow *controller.ControlWindow) *ToolState {
+func NewToolState(app *app.MApp, controlWindow *controller.ControlWindow) *ToolState {
 	toolState := &ToolState{
-		AppState:      appState,
+		App:           app,
 		ControlWindow: controlWindow,
 		BlurModel:     model.NewBlurModel(),
 	}
@@ -59,7 +59,7 @@ func NewToolState(appState state.IAppState, controlWindow *controller.ControlWin
 		toolState.ControlWindow.SetShowWire(!play)
 		// 頂点選択切り替え
 		toolState.ControlWindow.SetShowSelectedVertex(!play)
-		toolState.ResetSelectedVertexIndexes(false, false, true, nil)
+		toolState.ResetSelectedVertexes(false, false, true, nil)
 
 		toolState.SetEnabled(6)
 	})
@@ -71,23 +71,23 @@ func NewToolState(appState state.IAppState, controlWindow *controller.ControlWin
 	toolState.ControlWindow.TabWidget.CurrentIndexChanged().Attach(func() {
 		if toolState.ControlWindow.TabWidget.CurrentIndex() == 2 {
 			// 根元選択頂点に切り替え
-			toolState.ResetSelectedVertexIndexes(true, false, false, nil)
-			toolState.ControlWindow.SetUpdateSelectedVertexIndexesFunc(toolState.RootVertexSelectedFunc)
+			toolState.ResetSelectedVertexes(true, false, false, nil)
+			toolState.ControlWindow.SetUpdateSelectedVertexesFunc(toolState.RootVertexSelectedFunc)
 		} else if toolState.ControlWindow.TabWidget.CurrentIndex() == 3 {
 			// 切っ先選択頂点に切り替え
-			toolState.ResetSelectedVertexIndexes(false, true, false, nil)
-			toolState.ControlWindow.SetUpdateSelectedVertexIndexesFunc(toolState.TipVertexSelectedFunc)
+			toolState.ResetSelectedVertexes(false, true, false, nil)
+			toolState.ControlWindow.SetUpdateSelectedVertexesFunc(toolState.TipVertexSelectedFunc)
 		} else if toolState.ControlWindow.TabWidget.CurrentIndex() == 4 {
 			// 刃選択頂点に切り替え
-			toolState.ResetSelectedVertexIndexes(false, false, true, nil)
-			toolState.ControlWindow.SetUpdateSelectedVertexIndexesFunc(toolState.EdgeVertexSelectedFunc)
+			toolState.ResetSelectedVertexes(false, false, true, nil)
+			toolState.ControlWindow.SetUpdateSelectedVertexesFunc(toolState.EdgeVertexSelectedFunc)
 		}
 	})
 
 	return toolState
 }
 
-func (toolState *ToolState) ResetSelectedVertexIndexes(
+func (toolState *ToolState) ResetSelectedVertexes(
 	isSelectRoot, isSelectTip, isSelectEdge bool, addNoSelectedIndexes []int,
 ) {
 	selectedIndexes := make([]int, 0)
@@ -111,7 +111,8 @@ func (toolState *ToolState) ResetSelectedVertexIndexes(
 		noSelectedIndexes = append(noSelectedIndexes, addNoSelectedIndexes...)
 	}
 
-	toolState.ControlWindow.ChannelState().SetSelectedVertexIndexesChannel([][][]int{{selectedIndexes}})
+	toolState.App.ControlToViewerChannel().SetSelectedVertexesChannel([][][]int{{selectedIndexes}})
+	toolState.App.ControlToViewerChannel().SetNoSelectedVertexesChannel([][][]int{{noSelectedIndexes}})
 }
 
 func (toolState *ToolState) SetEnabled(step int) {
