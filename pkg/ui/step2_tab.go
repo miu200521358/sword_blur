@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"fmt"
-	"math/rand"
 	"slices"
 
 	"github.com/miu200521358/mlib_go/pkg/domain/vmd"
@@ -89,7 +87,7 @@ func (toolState *ToolState) onChangeMaterialListBox() func(indexes []int) {
 			}
 			toolState.BlurModel.Motion.AppendRegisteredMorphFrame(usecase.GetVisibleMorphName(material), mf)
 			// 強制的にモーション更新するようハッシュ更新
-			toolState.BlurModel.Motion.SetHash(fmt.Sprintf("%d", rand.Intn(10000)))
+			toolState.BlurModel.Motion.SetRandHash()
 		}
 
 		// outputPath := mutils.CreateOutputPath(

@@ -148,7 +148,6 @@ This tool is created using Go, and includes the following libraries:
 ・https://github.com/go-gl/gl
 ・https://github.com/go-gl/glfw/v3.3/glfw
 ・https://github.com/go-gl/mathgl
-・https://github.com/jinzhu/copier
 ・https://github.com/nicksnyder/go-i18n/v2
 ・https://github.com/petar/GoLLRB
 ・https://github.com/ftrvxmtrx/tga

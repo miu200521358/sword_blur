@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"fmt"
-	"math/rand"
 	"strings"
 
 	"github.com/miu200521358/mlib_go/pkg/domain/mmath"
@@ -22,8 +21,8 @@ func Preview(blurModel *model.BlurModel, model *pmx.PmxModel) (*pmx.PmxModel, *v
 	previewVmd := createPreviewVmd(outputModel, blurRootBone, blurBone)
 
 	// ハッシュ値を被らないよう設定
-	outputModel.SetHash(fmt.Sprintf("%d", rand.Intn(10000)))
-	previewVmd.SetHash(fmt.Sprintf("%d", rand.Intn(10000)))
+	outputModel.SetRandHash()
+	previewVmd.SetRandHash()
 
 	return outputModel, previewVmd, nil
 }
