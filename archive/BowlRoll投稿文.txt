@@ -1,0 +1,38 @@
+刀を動かした時に出るブレの設定をモデルに追加できるツールです
+主に日本刀を想定していますが、モデルの読み込み制限などは行っていないので、
+お好きなモデルで試していただけます
+
+【注意事項】
+・ブレを出すためモデル改造を行います
+　「材質追加、ウェイト調整、ボーン追加、モーフ追加」などの
+　モデル改造が許可されていないモデルにはご利用いただけません
+
+--------------------
+■配布動画
+
+YouTube
+https://youtu.be/OxW37Kh5mU4
+
+ニコニコ動画
+https://www.nicovideo.jp/watch/sm43888287
+
+--------------------
+■コンテンツツリー
+
+https://seiga.nicovideo.jp/seiga/im11486697
+
+--------------------
+■ ヘルプが必要な場合
+
+ツールの不具合報告やご相談はDiscordからお願いします
+それ以外からのご連絡は、お答えしかねます
+
+miuの実験室：https://discord.gg/MW2Bn47aCN
+
+--------------------
+■ If you need help
+
+Please report tool issues or consultations through Discord.
+We are unable to respond to inquiries from other sources.
+
+miu's Laboratory: https://discord.gg/MW2Bn47aCN

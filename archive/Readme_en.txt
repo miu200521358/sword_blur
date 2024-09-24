@@ -34,23 +34,24 @@ Therefore, it cannot be used with models that do not permit modifications.
 ■　Distribution Video
 ----------------------------------------------------------------
 
-（working）
+https://youtu.be/OxW37Kh5mU4
 
+https://www.nicovideo.jp/watch/sm43888287
 
 ----------------------------------------------------------------
 ■　Static Images for Content Tree
 ----------------------------------------------------------------
 
-（working）
-
+https://seiga.nicovideo.jp/seiga/im11486697
 
 ----------------------------------------------------------------
 ■　Included Files
 ----------------------------------------------------------------
 
-- SwordBlur_x.xx.xx.exe　…　exe file
-- Readme.txt　　　　　　 …　Readme
-
+- SwordBlur_x.xx.xx.exe         …  exe file
+- Readme.txt                    …  Readme
+- content_tree.txt              …  Content tree list of commonly used tools such as MME.
+- Community Link - miu's Lab    …  Shortcut link to the community.
 
 ----------------------------------------------------------------
 ■　System Requirements
@@ -100,7 +101,7 @@ miuの実験室：https://discord.gg/MW2Bn47aCN
 《Mandatory Requirements》
 
 - If you publish or distribute a modified model, please include proper credit.
-- For Nico Nico Douga, please register the work in the content tree using a tree image (currently in preparation).
+- For Nico Nico Douga, please register the work in the content tree using a tree image (im11486697).
   - If you register as a parent in the content tree, credit listing is optional.
 - When distributing the model to an unspecified large number of people, please include credit or register it in the content tree only in the source (e.g., video) announcing the distribution.
   - It is not necessary to list credits for works using the relevant model.
@@ -175,5 +176,10 @@ I created the icon myself based on a rough draft from ChatGPT.
 ----------------------------------------------------------------
 ■　revision
 ----------------------------------------------------------------
+
+SwordBlur_1.0.0 (2024/09/24)
+- General release started.
+
+
 
 
