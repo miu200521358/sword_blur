@@ -244,7 +244,7 @@ func createBlurRootBone(
 	blurRootBone.BoneFlag = pmx.BONE_FLAG_CAN_TRANSLATE | pmx.BONE_FLAG_CAN_ROTATE | pmx.BONE_FLAG_CAN_MANIPULATE | pmx.BONE_FLAG_IS_VISIBLE
 	// 表示枠追加
 	blurDisplaySlot.References = append(blurDisplaySlot.References,
-		pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_BONE, DisplayIndex: blurRootBone.Index()})
+		&pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_BONE, DisplayIndex: blurRootBone.Index()})
 
 	model.Bones.Append(blurRootBone)
 
@@ -268,7 +268,7 @@ func createBlurBone(
 	blurBone.BoneFlag = pmx.BONE_FLAG_CAN_TRANSLATE | pmx.BONE_FLAG_CAN_ROTATE | pmx.BONE_FLAG_CAN_MANIPULATE | pmx.BONE_FLAG_IS_VISIBLE | pmx.BONE_FLAG_HAS_FIXED_AXIS | pmx.BONE_FLAG_IS_AFTER_PHYSICS_DEFORM
 	// 表示枠追加
 	blurDisplaySlot.References = append(blurDisplaySlot.References,
-		pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_BONE, DisplayIndex: blurBone.Index()})
+		&pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_BONE, DisplayIndex: blurBone.Index()})
 
 	// 軸制限(先端から根元までのベクトルの外積を軸にする)
 	blurBone.FixedAxis = tailPosition.Subed(rootPosition).Normalized().Cross(rootVector)
@@ -294,7 +294,7 @@ func createBlurTailBone(
 	blurTailBone.BoneFlag = pmx.BONE_FLAG_CAN_TRANSLATE | pmx.BONE_FLAG_CAN_ROTATE | pmx.BONE_FLAG_CAN_MANIPULATE | pmx.BONE_FLAG_IS_VISIBLE | pmx.BONE_FLAG_IS_AFTER_PHYSICS_DEFORM
 	// 表示枠追加
 	blurDisplaySlot.References = append(blurDisplaySlot.References,
-		pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_BONE, DisplayIndex: blurTailBone.Index()})
+		&pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_BONE, DisplayIndex: blurTailBone.Index()})
 
 	// 選択の頂点位置の中間をボーン位置とする
 	blurTailBone.Position = tailPosition.Copy()
@@ -321,7 +321,7 @@ func createBlurIkBone(
 	blurIkBone.BoneFlag = pmx.BONE_FLAG_CAN_TRANSLATE | pmx.BONE_FLAG_CAN_ROTATE | pmx.BONE_FLAG_CAN_MANIPULATE | pmx.BONE_FLAG_IS_VISIBLE | pmx.BONE_FLAG_IS_AFTER_PHYSICS_DEFORM | pmx.BONE_FLAG_IS_IK
 	// 表示枠追加
 	blurDisplaySlot.References = append(blurDisplaySlot.References,
-		pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_BONE, DisplayIndex: blurIkBone.Index()})
+		&pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_BONE, DisplayIndex: blurIkBone.Index()})
 
 	// IK設定
 	blurIk := pmx.NewIk()
@@ -378,7 +378,7 @@ func createBlurWeightBone(
 	blurWeightBone.BoneFlag = pmx.BONE_FLAG_CAN_TRANSLATE | pmx.BONE_FLAG_CAN_ROTATE | pmx.BONE_FLAG_CAN_MANIPULATE | pmx.BONE_FLAG_IS_VISIBLE | pmx.BONE_FLAG_IS_AFTER_PHYSICS_DEFORM | pmx.BONE_FLAG_IS_EXTERNAL_ROTATION
 	// 表示枠追加
 	blurDisplaySlot.References = append(blurDisplaySlot.References,
-		pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_BONE, DisplayIndex: blurWeightBone.Index()})
+		&pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_BONE, DisplayIndex: blurWeightBone.Index()})
 
 	// 付与親
 	blurWeightBone.EffectIndex = blurBone.Index()
@@ -408,7 +408,7 @@ func createBlurWeightTailBone(
 	blurWeightTailBone.BoneFlag = pmx.BONE_FLAG_CAN_TRANSLATE | pmx.BONE_FLAG_CAN_ROTATE | pmx.BONE_FLAG_CAN_MANIPULATE | pmx.BONE_FLAG_IS_VISIBLE
 	// 表示枠追加
 	blurDisplaySlot.References = append(blurDisplaySlot.References,
-		pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_BONE, DisplayIndex: blurWeightTailBone.Index()})
+		&pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_BONE, DisplayIndex: blurWeightTailBone.Index()})
 
 	model.Bones.Append(blurWeightTailBone)
 
@@ -445,7 +445,7 @@ func createDiffuseMorph(
 	morph.IsSystem = false
 
 	model.DisplaySlots.Get(1).References = append(model.DisplaySlots.Get(1).References,
-		pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_MORPH, DisplayIndex: morph.Index()})
+		&pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_MORPH, DisplayIndex: morph.Index()})
 
 	model.Morphs.Append(morph)
 }
@@ -480,7 +480,7 @@ func createTextureMorph(
 	morph.IsSystem = false
 
 	model.DisplaySlots.Get(1).References = append(model.DisplaySlots.Get(1).References,
-		pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_MORPH, DisplayIndex: morph.Index()})
+		&pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_MORPH, DisplayIndex: morph.Index()})
 
 	model.Morphs.Append(morph)
 }
@@ -515,7 +515,7 @@ func createSpecularMorph(
 	morph.IsSystem = false
 
 	model.DisplaySlots.Get(1).References = append(model.DisplaySlots.Get(1).References,
-		pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_MORPH, DisplayIndex: morph.Index()})
+		&pmx.Reference{DisplayType: pmx.DISPLAY_TYPE_MORPH, DisplayIndex: morph.Index()})
 
 	model.Morphs.Append(morph)
 }
