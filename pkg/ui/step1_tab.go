@@ -52,7 +52,7 @@ func newStep1Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 					toolState.BlurModel.Motion = vmd.NewVmdMotion("")
 				}
 			} else {
-				mlog.E(mi18n.T("読み込み失敗"), err)
+				mlog.ET(mi18n.T("読み込み失敗"), err.Error())
 			}
 		})
 	}
@@ -72,7 +72,7 @@ func newStep1Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 				controlWindow.UpdateMaxFrame(motion.MaxFrame())
 				toolState.BlurModel.Motion = data.(*vmd.VmdMotion)
 			} else {
-				mlog.E(mi18n.T("読み込み失敗"), err)
+				mlog.ET(mi18n.T("読み込み失敗"), err.Error())
 			}
 		})
 	}
