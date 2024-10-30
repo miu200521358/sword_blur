@@ -41,7 +41,7 @@ func newStep1Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 			mi18n.T("ブレ生成対象モデルの使い方"))
 
 		toolState.OriginalPmxPicker.SetOnPathChanged(func(path string) {
-			if data, err := toolState.OriginalPmxPicker.Load(); err == nil {
+			if data, err := toolState.OriginalPmxPicker.Load(path); err == nil {
 				// 出力パス設定
 				outputPath := mutils.CreateOutputPath(path, "blur")
 				toolState.OutputPmxPicker.SetPath(outputPath)
@@ -67,7 +67,7 @@ func newStep1Tab(controlWindow *controller.ControlWindow, toolState *ToolState) 
 			mi18n.T("確認用モーションの使い方"))
 
 		toolState.OriginalVmdPicker.SetOnPathChanged(func(path string) {
-			if data, err := toolState.OriginalVmdPicker.Load(); err == nil {
+			if data, err := toolState.OriginalVmdPicker.Load(path); err == nil {
 				motion := data.(*vmd.VmdMotion)
 				controlWindow.UpdateMaxFrame(motion.MaxFrame())
 				toolState.BlurModel.Motion = data.(*vmd.VmdMotion)

@@ -120,7 +120,7 @@ func (toolState *ToolState) onClickStep5Preview() {
 	// 根元選択設定
 	toolState.BlurModel.EdgeVertexIndexes = edgeVertexIndexes
 	// 出力用モデルを別で読み込み
-	outputModel := toolState.OriginalPmxPicker.LoadForce().(*pmx.PmxModel)
+	outputModel := toolState.OriginalPmxPicker.LoadForce(toolState.OriginalPmxPicker.GetPath()).(*pmx.PmxModel)
 
 	var err error
 	toolState.BlurModel.OutputModel, toolState.BlurModel.OutputMotion, err = usecase.Preview(
